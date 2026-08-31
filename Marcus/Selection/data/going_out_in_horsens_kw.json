@@ -1,0 +1,373 @@
+[
+    {
+        "date": "2024-12-15T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 41,
+        "pizza Horsens": 44,
+        "isPartial": false
+    },
+    {
+        "date": "2024-12-22T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 0,
+        "pizza Horsens": 100,
+        "isPartial": false
+    },
+    {
+        "date": "2024-12-29T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 0,
+        "pizza Horsens": 59,
+        "isPartial": false
+    },
+    {
+        "date": "2025-01-05T00:00:00.000",
+        "bar Horsens": 34,
+        "cafe Horsens": 36,
+        "pizza Horsens": 55,
+        "isPartial": false
+    },
+    {
+        "date": "2025-01-12T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 56,
+        "pizza Horsens": 48,
+        "isPartial": false
+    },
+    {
+        "date": "2025-01-19T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 34,
+        "pizza Horsens": 55,
+        "isPartial": false
+    },
+    {
+        "date": "2025-01-26T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 69,
+        "pizza Horsens": 41,
+        "isPartial": false
+    },
+    {
+        "date": "2025-02-02T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 47,
+        "pizza Horsens": 47,
+        "isPartial": false
+    },
+    {
+        "date": "2025-02-09T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 58,
+        "pizza Horsens": 82,
+        "isPartial": false
+    },
+    {
+        "date": "2025-02-16T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 51,
+        "pizza Horsens": 44,
+        "isPartial": false
+    },
+    {
+        "date": "2025-02-23T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 81,
+        "pizza Horsens": 50,
+        "isPartial": false
+    },
+    {
+        "date": "2025-03-02T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 85,
+        "pizza Horsens": 39,
+        "isPartial": false
+    },
+    {
+        "date": "2025-03-09T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 58,
+        "pizza Horsens": 50,
+        "isPartial": false
+    },
+    {
+        "date": "2025-03-16T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 49,
+        "pizza Horsens": 69,
+        "isPartial": false
+    },
+    {
+        "date": "2025-03-23T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 55,
+        "pizza Horsens": 49,
+        "isPartial": false
+    },
+    {
+        "date": "2025-03-30T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 79,
+        "pizza Horsens": 57,
+        "isPartial": false
+    },
+    {
+        "date": "2025-04-06T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 47,
+        "pizza Horsens": 52,
+        "isPartial": false
+    },
+    {
+        "date": "2025-04-13T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 54,
+        "pizza Horsens": 38,
+        "isPartial": false
+    },
+    {
+        "date": "2025-04-20T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 59,
+        "pizza Horsens": 59,
+        "isPartial": false
+    },
+    {
+        "date": "2025-04-27T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 52,
+        "pizza Horsens": 43,
+        "isPartial": false
+    },
+    {
+        "date": "2025-05-04T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 33,
+        "pizza Horsens": 62,
+        "isPartial": false
+    },
+    {
+        "date": "2025-05-11T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 61,
+        "pizza Horsens": 81,
+        "isPartial": false
+    },
+    {
+        "date": "2025-05-18T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 77,
+        "pizza Horsens": 69,
+        "isPartial": false
+    },
+    {
+        "date": "2025-05-25T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 53,
+        "pizza Horsens": 65,
+        "isPartial": false
+    },
+    {
+        "date": "2025-06-01T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 53,
+        "pizza Horsens": 43,
+        "isPartial": false
+    },
+    {
+        "date": "2025-06-08T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 57,
+        "pizza Horsens": 78,
+        "isPartial": false
+    },
+    {
+        "date": "2025-06-15T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 63,
+        "pizza Horsens": 33,
+        "isPartial": false
+    },
+    {
+        "date": "2025-06-22T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 72,
+        "pizza Horsens": 62,
+        "isPartial": false
+    },
+    {
+        "date": "2025-06-29T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 64,
+        "pizza Horsens": 77,
+        "isPartial": false
+    },
+    {
+        "date": "2025-07-06T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 76,
+        "pizza Horsens": 42,
+        "isPartial": false
+    },
+    {
+        "date": "2025-07-13T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 46,
+        "pizza Horsens": 48,
+        "isPartial": false
+    },
+    {
+        "date": "2025-07-20T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 65,
+        "pizza Horsens": 78,
+        "isPartial": false
+    },
+    {
+        "date": "2025-07-27T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 50,
+        "pizza Horsens": 51,
+        "isPartial": false
+    },
+    {
+        "date": "2025-08-03T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 37,
+        "pizza Horsens": 47,
+        "isPartial": false
+    },
+    {
+        "date": "2025-08-10T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 0,
+        "pizza Horsens": 36,
+        "isPartial": false
+    },
+    {
+        "date": "2025-08-17T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 65,
+        "pizza Horsens": 48,
+        "isPartial": false
+    },
+    {
+        "date": "2025-08-24T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 39,
+        "pizza Horsens": 61,
+        "isPartial": false
+    },
+    {
+        "date": "2025-08-31T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 54,
+        "pizza Horsens": 57,
+        "isPartial": false
+    },
+    {
+        "date": "2025-09-07T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 0,
+        "pizza Horsens": 44,
+        "isPartial": false
+    },
+    {
+        "date": "2025-09-14T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 48,
+        "pizza Horsens": 60,
+        "isPartial": false
+    },
+    {
+        "date": "2025-09-21T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 44,
+        "pizza Horsens": 54,
+        "isPartial": false
+    },
+    {
+        "date": "2025-09-28T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 40,
+        "pizza Horsens": 60,
+        "isPartial": false
+    },
+    {
+        "date": "2025-10-05T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 51,
+        "pizza Horsens": 53,
+        "isPartial": false
+    },
+    {
+        "date": "2025-10-12T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 46,
+        "pizza Horsens": 60,
+        "isPartial": false
+    },
+    {
+        "date": "2025-10-19T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 50,
+        "pizza Horsens": 46,
+        "isPartial": false
+    },
+    {
+        "date": "2025-10-26T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 76,
+        "pizza Horsens": 49,
+        "isPartial": false
+    },
+    {
+        "date": "2025-11-02T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 54,
+        "pizza Horsens": 61,
+        "isPartial": false
+    },
+    {
+        "date": "2025-11-09T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 78,
+        "pizza Horsens": 41,
+        "isPartial": false
+    },
+    {
+        "date": "2025-11-16T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 69,
+        "pizza Horsens": 67,
+        "isPartial": false
+    },
+    {
+        "date": "2025-11-23T00:00:00.000",
+        "bar Horsens": 0,
+        "cafe Horsens": 48,
+        "pizza Horsens": 39,
+        "isPartial": false
+    },
+    {
+        "date": "2025-11-30T00:00:00.000",
+        "bar Horsens": 4,
+        "cafe Horsens": 30,
+        "pizza Horsens": 36,
+        "isPartial": false
+    },
+    {
+        "date": "2025-12-07T00:00:00.000",
+        "bar Horsens": 8,
+        "cafe Horsens": 52,
+        "pizza Horsens": 50,
+        "isPartial": false
+    },
+    {
+        "date": "2025-12-14T00:00:00.000",
+        "bar Horsens": 7,
+        "cafe Horsens": 60,
+        "pizza Horsens": 55,
+        "isPartial": true
+    }
+]

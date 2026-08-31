@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 1.4</title>
+    <style>body { font-family: sans-serif; padding: 20px; }</style>
+</head>
+<body>
+    <h1>Exercise 1.4 – Measure the Data</h1>
+    <ol type="a">
+        <li>Group the data by type.</li>
+        <li>Inspect the data for each type.</li>
+        <li>Find minimum, maximum, and count for each type.</li>
+        <li>Find the first and last date.</li>
+        <li>Use additional <code>d3-array</code> functions.</li>
+    </ol>
+    <p>See the browser console for the results.</p>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Exercise 1.4 – Measure the Data
+        // a) Group the data by type.
+        // b) Inspect the data for each type.
+        // c) Find minimum, maximum, and count for each type.
+        // d) Find the first and last date.
+        // e) Use more functions from d3-array.
+        const dataPath = "../Selection/data/going_out_in_horsens_kw.json";
+        const types = ["bar Horsens", "cafe Horsens", "pizza Horsens"];
+        const parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L");
+
+        function formatDatum(datum) {
+            return types.map(type => ({ date: parseDate(datum.date), type, value: datum[type] }));
+        }
+
+        d3.json(dataPath).then(rawData => {
+            const formattedData = rawData.flatMap(formatDatum);
+            // a) Group all rows by their type.
+            const grouped = d3.group(formattedData, d => d.type);
+            // b) Inspect the grouped Map in the console.
+            console.log("Grouped by type:", grouped);
+
+            // c) Calculate minimum, maximum, and count for every type.
+            grouped.forEach((values, type) => {
+                console.log(type, {
+                    minimum: d3.min(values, d => d.value),
+                    maximum: d3.max(values, d => d.value),
+                    count: values.length
+                });
+            });
+
+            // d) Calculate the first and last date.
+            const dates = formattedData.map(d => d.date);
+            const values = formattedData.map(d => d.value);
+            console.log("First date:", d3.min(dates));
+            console.log("Last date:", d3.max(dates));
+            // e) More d3-array functions: mean, median, and sum.
+            console.log("Mean:", d3.mean(values), "Median:", d3.median(values), "Sum:", d3.sum(values));
+        }).catch(error => console.error("Failed to load data:", error));
+    </script>
+</body>
+</html>

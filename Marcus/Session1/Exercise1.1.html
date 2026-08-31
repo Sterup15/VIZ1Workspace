@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 1.1</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        svg { border: 1px solid #ccc; }
+        rect { fill: steelblue; }
+    </style>
+</head>
+<body>
+    <h1>Exercise 1.1 – Getting Started</h1>
+    <p>The uploaded <code>Selection.zip</code> has a project already in it.</p>
+    <ol>
+        <li>Open it in VS Code and run it with Live Server.</li>
+        <li>Inspect the result in the browser (use the inspector).</li>
+    </ol>
+
+    <svg id="container" width="400" height="120">
+        <rect x="20" y="20" width="80" height="80"></rect>
+        <rect x="130" y="20" width="80" height="80"></rect>
+    </svg>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Exercise 1.1 – Getting Started
+        // The uploaded Selection.zip has a project already in it.
+        // 1. Open ../Selection/index.html in VS Code and run it with Live Server.
+        // 2. Inspect the result in the browser using the inspector.
+        // 3. In the Selection project, inspect d3.select() and d3.selectAll().
+        const svg = d3.select("#container");
+        const rectangles = svg.selectAll("rect");
+        console.log("SVG:", svg.node());
+        console.log("Rectangles:", rectangles.nodes());
+    </script>
+</body>
+</html>
