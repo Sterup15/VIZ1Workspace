@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 1.5</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        svg { border: 1px solid #ccc; display: block; }
+    </style>
+</head>
+<body>
+    <h1>Exercise 1.5 – Bind the Data</h1>
+    <ol type="a">
+        <li>Apply data binding to SVG <code>&lt;rect&gt;</code> elements.</li>
+        <li>Inspect the generated rectangles in browser developer tools.</li>
+        <li>Create scales and visualize the data.</li>
+    </ol>
+    <svg id="container" width="700" height="250"></svg>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Exercise 1.5 – Bind the Data
+        // a) Apply data binding to the <rect> elements of the project.
+        // b) Inspect the result in the browser developer tools.
+        // c) If time permits, create appropriate scales and visualize some data.
+        const dataPath = "../Selection/data/going_out_in_horsens_kw.json";
+        const types = ["bar Horsens", "cafe Horsens", "pizza Horsens"];
+        const parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L");
+
+        function formatDatum(datum) {
+            return types.map(type => ({ date: parseDate(datum.date), type, value: datum[type] }));
+        }
+
+        d3.json(dataPath).then(rawData => {
+            const data = rawData.flatMap(formatDatum);
+            const svg = d3.select("#container");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            const margin = { top: 15, right: 20, bottom: 35, left: 40 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // c) Scales convert dates and values to SVG positions.
+            const x = d3.scaleTime().domain(d3.extent(data, d => d.date)).range([0, innerWidth]);
+            const y = d3.scaleLinear().domain([0, d3.max(data, d => d.value)]).nice().range([innerHeight, 0]);
+            const color = d3.scaleOrdinal().domain(types).range(["steelblue", "darkorange", "seagreen"]);
+            const barWidth = Math.max(1, innerWidth / rawData.length / types.length - 1);
+
+            chart.append("g").attr("transform", `translate(0,${innerHeight})`).call(d3.axisBottom(x).ticks(6));
+            chart.append("g").call(d3.axisLeft(y));
+
+            // a) Bind one formatted object to each <rect>.
+            // b) Inspect the generated <rect> elements in the browser inspector.
+            chart.selectAll("rect")
+                .data(data)
+                .join("rect")
+                .attr("x", d => x(d.date) + types.indexOf(d.type) * (barWidth + 1))
+                .attr("y", d => y(d.value))
+                .attr("width", barWidth)
+                .attr("height", d => innerHeight - y(d.value))
+                .attr("fill", d => color(d.type));
+        }).catch(error => console.error("Failed to load data:", error));
+    </script>
+</body>
+</html>

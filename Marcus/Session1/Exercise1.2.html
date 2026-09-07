@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 1.2</title>
+    <style>body { font-family: sans-serif; padding: 20px; }</style>
+</head>
+<body>
+    <h1>Exercise 1.2 – Load the Data</h1>
+    <p>Find the data from Google Trends in the <code>data/</code> directory.</p>
+    <ol type="a">
+        <li>Identify data types and data formats.</li>
+        <li>Load the data.</li>
+        <li>Display the data using <code>console.log()</code>.</li>
+    </ol>
+    <p>Open the browser developer tools console to inspect the loaded array.</p>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Exercise 1.2 – Load the Data
+        // Find the data from Google Trends in the data/ directory.
+        // a) Identify data types and data formats.
+        //    Format: JSON array of objects.
+        //    date: string; search terms: number; isPartial: boolean.
+        // b) Load the data.
+        const dataPath = "../Selection/data/going_out_in_horsens_kw.json";
+
+        // c) Display the data using console.log().
+        d3.json(dataPath)
+            .then(rawData => console.log("Raw Google Trends data:", rawData))
+            .catch(error => console.error("Failed to load data:", error));
+    </script>
+</body>
+</html>

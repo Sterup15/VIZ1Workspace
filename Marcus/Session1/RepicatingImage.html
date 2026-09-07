@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castle Shape</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        svg {
+            border: 2px solid #333;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <svg width="600" height="400" viewBox="0 0 600 400">
+        <!-- Castle shape using path with start point and control points -->
+        <path
+            d="M 100 100
+               C 150 150, 200 150, 250 100
+               C 300 150, 350 150, 400 100
+               C 450 150, 500 150, 550 100
+               L 550 300
+               L 100 300
+               Z"
+            fill="#f0f0f0"
+            stroke="#333"
+            stroke-width="2"
+        />
+        
+
+       
+    </svg>
+</body>
+</html>
