@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 1.5 (Session 2)</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 1000px; margin: 0 auto; }
+        h1 { color: #333; }
+        .instructions {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ff7f0e;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        svg { 
+            border: 1px solid #ccc; 
+            display: block; 
+            margin: 20px 0;
+            background-color: #fafafa;
+        }
+        svg rect {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        svg rect:hover {
+            opacity: 1;
+            stroke: #333;
+            stroke-width: 2;
+        }
+        .legend { margin-top: 20px; }
+        .legend-item { display: flex; align-items: center; margin: 10px 0; font-size: 14px; }
+        .legend-color { width: 20px; height: 20px; margin-right: 10px; border: 1px solid #999; }
+        .console-info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        .click-hint {
+            color: #666;
+            font-size: 12px;
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise 1.5 – Bind the Data</h1>
+    <ol type="a">
+        <li>Apply data binding to SVG <code>&lt;rect&gt;</code> elements.</li>
+        <li>Print the result using console.log. Inspect it in the console.</li>
+        <li>Create appropriate scales and visualize the data.</li>
+    </ol>
+    
+    <div class="instructions">
+        <strong>📌 Instructions:</strong><br>
+        ✓ Open Developer Console: Press <code>F12</code> or <code>Ctrl+Shift+I</code><br>
+        ✓ Look at the Console tab to see all the logged data<br>
+        ✓ Hover over or click on any bar to see its individual data in the console<br>
+        ✓ The console shows: flattened data array, scale information, bound rectangles, and individual bar data
+    </div>
+    
+    <svg id="container" width="700" height="280"></svg>
+
+    <p class="click-hint">💡 Click or hover over bars to see their data logged to the console</p>
+
+    <div class="legend">
+        <h3>Categories</h3>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #1f77b4;"></div>
+            <span>bar Horsens</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #ff7f0e;"></div>
+            <span>cafe Horsens</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #2ca02c;"></div>
+            <span>pizza Horsens</span>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Exercise 1.5 – Bind the Data (Enhanced with Console Logging)
+        // a) Apply data binding to the <rect> elements of the project.
+        // b) Print the result using console.log. Inspect it in the console.
+        // c) Create appropriate scales and visualize the data.
+        
+        const dataPath = "../Selection/data/going_out_in_horsens_kw.json";
+        const types = ["bar Horsens", "cafe Horsens", "pizza Horsens"];
+        const parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L");
+
+        function formatDatum(datum) {
+            return types.map(type => ({ 
+                date: parseDate(datum.date), 
+                dateStr: datum.date.split("T")[0],
+                type, 
+                value: datum[type] 
+            }));
+        }
+
+        d3.json(dataPath).then(rawData => {
+            // STEP 1: Flatten and prepare data
+            const data = rawData.flatMap(formatDatum);
+            
+            console.clear();
+            console.log("%c=== EXERCISE 1.5 – BIND THE DATA ===", "color: #1f77b4; font-size: 14px; font-weight: bold;");
+            
+            // b) PART 1: Print the flattened data array
+            console.log("%c✓ Step b1: Flattened Data Array", "color: #ff7f0e; font-weight: bold;");
+            console.log("This is the raw flattened array with all data points:");
+            console.table(data);
+            
+            // b) PART 2: Print statistics
+            console.log("%c✓ Step b2: Data Statistics", "color: #ff7f0e; font-weight: bold;");
+            console.log("Total data points:", data.length);
+            console.log("Number of dates:", rawData.length);
+            console.log("Categories:", types);
+            console.log("Unique types:", [...new Set(data.map(d => d.type))]);
+            console.log("Date range:", {
+                start: d3.min(data, d => d.date),
+                end: d3.max(data, d => d.date)
+            });
+            console.log("Value range:", {
+                min: 0,
+                max: d3.max(data, d => d.value)
+            });
+
+            // Create SVG and scales
+            const svg = d3.select("#container");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            const margin = { top: 15, right: 20, bottom: 35, left: 50 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            const chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // c) Create scales to convert data to SVG coordinates
+            const x = d3.scaleTime()
+                .domain(d3.extent(data, d => d.date))
+                .range([0, innerWidth]);
+            
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.value)])
+                .nice()
+                .range([innerHeight, 0]);
+            
+            const color = d3.scaleOrdinal()
+                .domain(types)
+                .range(["#1f77b4", "#ff7f0e", "#2ca02c"]);
+            
+            const barWidth = Math.max(1, innerWidth / rawData.length / types.length - 1);
+
+            // Log scale information
+            console.log("%c✓ Step c: Scales Created", "color: #2ca02c; font-weight: bold;");
+            console.log("X Scale (Time):", { domain: x.domain(), range: x.range() });
+            console.log("Y Scale (Linear):", { domain: y.domain(), range: y.range() });
+            console.log("Color Scale:", { domain: color.domain(), range: color.range() });
+            console.log("Bar width:", barWidth);
+
+            // Add axes
+            chart.append("g")
+                .attr("transform", `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(x).ticks(6));
+            
+            chart.append("g")
+                .call(d3.axisLeft(y));
+
+            // a) & b) MAIN PART: Bind data to <rect> elements
+            console.log("%c✓ Step a & b: Data Binding to <rect> Elements", "color: #1f77b4; font-weight: bold;");
+            console.log("Binding", data.length, "data points to <rect> elements...");
+            
+            const rects = chart.selectAll("rect")
+                .data(data)
+                .join("rect")
+                .attr("x", d => x(d.date) + types.indexOf(d.type) * (barWidth + 1))
+                .attr("y", d => y(d.value))
+                .attr("width", barWidth)
+                .attr("height", d => innerHeight - y(d.value))
+                .attr("fill", d => color(d.type))
+                .attr("class", "bar");
+            
+            console.log("Successfully bound", rects.nodes().length, "rectangles to data");
+            console.log("DOM Nodes (HTMLCollection):", rects.nodes());
+            
+            // Log first few rectangles with their bound data
+            console.log("%c✓ Sample of Bound Data (first 5 rectangles):", "color: #2ca02c;");
+            rects.nodes().slice(0, 5).forEach((rect, i) => {
+                const d = data[i];
+                console.log(`  [${i}] ${d.dateStr} | ${d.type}: ${d.value}`, rect);
+            });
+
+            // Interactive: Click on bars to see their data
+            rects.on("mouseover", d => {
+                console.log("%c>>> Bar Hover <<<", "color: #ff7f0e; background: #ffffcc;");
+                console.log("Date:", d.dateStr);
+                console.log("Category:", d.type);
+                console.log("Value:", d.value);
+                console.log("Full Data Object:", d);
+            })
+            .on("click", d => {
+                console.clear();
+                console.log("%c>>> BAR CLICKED <<<", "color: #1f77b4; font-size: 14px; font-weight: bold; background: #e3f2fd;");
+                console.log("Date:", d.dateStr);
+                console.log("Category:", d.type);
+                console.log("Search Volume:", d.value);
+                console.log("Full Bound Data Object:", d);
+                console.log("Scaled X Position:", x(d.date));
+                console.log("Scaled Y Position:", y(d.value));
+            });
+
+            console.log("%c=== INSPECTION COMPLETE ===", "color: #2ca02c; font-size: 14px; font-weight: bold;");
+            console.log("💡 Tip: Hover over or click bars to see their individual data logged above.");
+
+        }).catch(error => console.error("Failed to load data:", error));
+    </script>
+</body>
+</html>

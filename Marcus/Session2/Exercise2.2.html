@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 2.2 – Implementing the Layout</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        svg {
+            border: 2px solid #333;
+            background-color: #f5f5f5;
+            display: block;
+            margin: 20px auto;
+        }
+        h1 { text-align: center; }
+        .info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            margin: 20px;
+            border-left: 4px solid #1f77b4;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .legend-text {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 20px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 30px;
+            vertical-align: middle;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise 2.2 – Implementing the Layout</h1>
+    
+    <div class="info">
+        <p><strong>Goal:</strong> Implement a horizontal bar chart with the layout shown in the exercise diagram.</p>
+        <p><strong>Data:</strong> Google Trends data for bars, cafes, and pizza in Horsens (weekly search volumes)</p>
+        <p><strong>Features:</strong> Grouped bars by date, legend, axes with labels, grid lines</p>
+    </div>
+
+    <svg id="chart" width="900" height="500"></svg>
+
+    <div class="legend-text">
+        <span class="legend-item">
+            <span class="legend-color" style="background-color: #1f77b4;"></span>
+            bar Horsens
+        </span>
+        <span class="legend-item">
+            <span class="legend-color" style="background-color: #ff7f0e;"></span>
+            cafe Horsens
+        </span>
+        <span class="legend-item">
+            <span class="legend-color" style="background-color: #2ca02c;"></span>
+            pizza Horsens
+        </span>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Exercise 2.2 – Implementing the Layout
+        // Create a horizontal bar chart with grouped bars for each date
+        
+        const dataPath = "../Selection/data/going_out_in_horsens_kw.json";
+        const types = ["bar Horsens", "cafe Horsens", "pizza Horsens"];
+        const colors = ["#1f77b4", "#ff7f0e", "#2ca02c"];
+
+        d3.json(dataPath).then(rawData => {
+            console.log("Raw data loaded, length:", rawData.length);
+            
+            // Limit to first 15 dates for better visibility
+            const limitedData = rawData.slice(0, 15);
+            console.log("Using first 15 dates:", limitedData.length);
+
+            // Transform data: create an array where each element is a date with its 3 bar values
+            const dataByDate = limitedData.map(d => ({
+                date: d.date.split("T")[0],  // Extract date string (YYYY-MM-DD)
+                values: types.map((type, i) => ({
+                    name: type,
+                    value: d[type],
+                    index: i,
+                    color: colors[i]
+                }))
+            }));
+
+            console.log("Data grouped by date:", dataByDate);
+
+            const svg = d3.select("#chart");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            
+            console.log("SVG dimensions:", width, "x", height);
+            
+            // Layout dimensions
+            const margin = { top: 30, right: 50, bottom: 50, left: 120 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            console.log("Inner dimensions:", innerWidth, "x", innerHeight);
+            
+            const chart = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // SCALES FOR HORIZONTAL BARS
+            // X-scale: linear scale for values (bars extend horizontally to the right)
+            const allValues = limitedData.flatMap(d => types.map(t => d[t]));
+            const xMax = d3.max(allValues);
+            
+            console.log("Value range: 0 to", xMax);
+            
+            const xScale = d3.scaleLinear()
+                .domain([0, xMax])
+                .nice()
+                .range([0, innerWidth]);
+
+            // Y-scale: band scale for dates (each date gets a band, divided into 3 sub-bars)
+            const yScale = d3.scaleBand()
+                .domain(dataByDate.map(d => d.date))
+                .range([0, innerHeight])
+                .padding(0.2);
+
+            // Height of each individual bar within a date band
+            const barHeight = yScale.bandwidth() / types.length;
+
+            console.log("X scale domain:", xScale.domain(), "range:", xScale.range());
+            console.log("Y scale domain size:", yScale.domain().length);
+            console.log("Y bandwidth:", yScale.bandwidth(), "Bar height:", barHeight);
+
+            // Add grid lines (vertical)
+            chart.append("g")
+                .attr("class", "grid")
+                .attr("opacity", 0.1)
+                .call(d3.axisTop(xScale)
+                    .tickSize(-innerHeight)
+                    .tickFormat(""));
+
+            // RENDER BARS
+            console.log("Creating", dataByDate.length, "date groups");
+            
+            // For each date group
+            const dateGroups = chart.selectAll(".date-group")
+                .data(dataByDate, d => d.date)
+                .join("g")
+                .attr("class", "date-group")
+                .attr("transform", d => {
+                    const yPos = yScale(d.date);
+                    console.log("Date:", d.date, "Y position:", yPos);
+                    return `translate(0,${yPos})`;
+                });
+
+            // Within each date group, add 3 horizontal bars
+            dateGroups.selectAll("rect")
+                .data(d => d.values, d => d.name)
+                .join("rect")
+                .attr("x", 0)
+                .attr("y", d => d.index * barHeight)
+                .attr("width", d => {
+                    const w = xScale(d.value);
+                    return w;
+                })
+                .attr("height", Math.max(2, barHeight - 2))
+                .attr("fill", d => d.color)
+                .attr("stroke", "white")
+                .attr("stroke-width", 0.5);
+
+            console.log("Bars rendered");
+
+            // Add X-axis (bottom, values)
+            chart.append("g")
+                .attr("transform", `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(xScale).ticks(6));
+
+            // Add Y-axis (left, dates)
+            chart.append("g")
+                .call(d3.axisLeft(yScale).tickSize(0))
+                .style("font-size", "12px");
+
+            // Add legend in SVG
+            const legend = svg.append("g")
+                .attr("transform", "translate(150, 15)");
+
+            legend.selectAll(".legend-item")
+                .data(types)
+                .join("g")
+                .attr("class", "legend-item")
+                .attr("transform", (d, i) => `translate(${i * 200}, 0)`)
+                .call(g => {
+                    g.append("rect")
+                        .attr("width", 15)
+                        .attr("height", 15)
+                        .attr("fill", (d, i) => colors[i]);
+                    
+                    g.append("text")
+                        .attr("x", 20)
+                        .attr("y", 12)
+                        .style("font-size", "12px")
+                        .text(d => d);
+                });
+
+            console.log("Chart rendering complete!");
+
+        }).catch(error => console.error("Failed to load data:", error));
+    </script>
+</body>
+</html>
