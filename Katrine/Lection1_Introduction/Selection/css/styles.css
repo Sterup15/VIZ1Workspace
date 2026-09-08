@@ -1,0 +1,42 @@
+body {
+    font-size: 0.8rem;
+    font-weight: 400;
+    background-color: #f2f2f2;
+    color: #333;
+    font-family: "sans-serif";
+    margin: 0;
+    padding: 0;
+    display: block; 
+}
+
+.content-wrapper {
+    padding: 50px; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    width: 800px;
+    max-height: 600px;
+    padding-top: 25px;
+}
+
+#chart_ex2 {
+    overflow-y: scroll;
+    height: 500px; 
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f2f2f2;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 5px;
+}
