@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Interactive Data Visualization with D3.js - Digital Infographic</title>
+	<link rel="stylesheet" type="text/css" href="css/grid.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<!-- Add Scripts Here -->
+  <script src="./js/bar-chart.js"></script>
+  <script src="./js/circle-chart.js"></script>
+  <script src="./js/bubble-chart.js"></script>
+	<script src="./js/main.js"></script>
+</head>
+<body onload="main()">
+	<div class="container">
+		<h1>The music we listened to in 2025</h1>
+		<div class="row">
+			<div class="col-8">
+				<div class="subtitle">Luminate Year-End Music Report</div>
+				<div class="intro">The year 2025 was one of constant changes and adaptation. How did the year events affect the way we listened to music or which artists we've picked? In their latest year-end report, Luminate gives us a detailed overview. Let's look at some of their findings!</div>		
+			</div>
+		</div>
+		<div class="bar-chart-section">
+			<h2>R&B/Hip-Hop: On top in a throwback era</h2>
+			<div class="row">
+				<div class="col-8">
+					<div class="section-intro">Holding about a quarter of all streams, R&B/Hip-Hop continues to dominate the US music scene in 2025. Yet nearly a quarter of all streams come from songs released in the 2000s and before</div>		
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-6">
+					<div id="top-genres"></div>
+				</div>
+				<div class="col-6">
+					<div id="release-by-decade"></div>
+				</div>
+			</div>
+		</div>
+
+		<div class="bubble-chart-section">
+			<h2>Top albums of 2025: How they were consumed</h2>
+			<div class="row">
+				<div class="col-8">
+					<div class="section-intro">Is the number of on-demand audio streams proportional to the number of video streams? And how does that correlate with sales? Let's look at the top 10 albums of 2025 for an overview.</div>		
+				</div>
+			</div>
+			<div id="bubble-chart"></div>
+			<div id="legend">
+				<h3>Legend</h3>
+				<div class="row">
+					<div class="col-5">
+						<div class="legend-color">
+							<h4>Albums</h4>
+						</div>
+					</div>
+					<div class="col-5">
+						<div class="legend-area">
+							<h4>Sales</h4>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="source">Source: <a href="https://luminatedata.com/reports/yearend-music-industry-report-2025/">Luminate - Year-End Music Report 2025</a></div>
+	</div>
+	
+
+</body>
+</html>
