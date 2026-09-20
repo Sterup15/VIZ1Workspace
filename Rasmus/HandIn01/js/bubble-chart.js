@@ -102,7 +102,7 @@ function createColorLegend(data, colorScale) {
         .style('background-color', d => colorScale(d.title));
 
     items.append('span')
-        .text(d => d.title);
+        .text(d => `${d.title} - ${d.artist}`);
 }
 
 // Three circles from the same radius scale, so the reader can match a bubble
