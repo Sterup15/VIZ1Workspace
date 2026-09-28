@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Love songs from 1958-2023 - streamgraph</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="css/grid.css">
+	<link rel="stylesheet" type="text/css" href="css/rSlider.min.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+</head>
+
+<body>
+	<div class="container">
+		<h1>The Love Song isn't Dead, it's Evolving</h1>
+		<div class="subtitle">How love songs have changed from 1958-2023 on the U.S. Billboard Top-10</div>
+		<div class="intro">
+			<p>From 1958 to 2023, pop music has told countless stories about love — but not always in the same way.
+				While some claim that traditional love songs are disappearing, this visualization explores how different
+				types of love songs have changed over time. Are we really hearing less about love, or just different
+				kinds of it?</p>
+		</div>
+		<div class="filters">
+			<div class="row">
+				<div class="col-4">
+					<div class="filter filter-song-category">
+						<label for="selectSongCategory">Select a song category</label>
+						<select name="selectSongCategory" id="selectSongCategory"></select>
+					</div>
+				</div>
+				<div class="col-8">
+					<div class="filter filter-years">
+						<label for="yearsSlider">Select a year range</label>
+						<div class="slider-wrapper">
+							<div class="slider">
+								<input type="text" id="yearsSlider" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="viz"></div>
+		<div class="legend"></div>
+		<div>
+			<p>We categorize love songs based on the relationship between the speaker and their subject — whether love
+				is mutual, unreturned, complicated, or directed inward. Over time, newer categories emerge alongside the
+				classic serenade: songs about heartache, emotional complexity, confidence, and even self-love. These
+				modern expressions often blur the lines of traditional romance.</p>
+
+			<p>Rather than fading away, the love song has expanded. While serenades once dominated, newer forms like
+				“sexual confidence” and “love for the self” have grown significantly, especially in recent decades. Love
+				in music hasn’t disappeared — it has diversified. Today’s artists are still love-struck, but they
+				express it in more nuanced and varied ways than ever before.</p>
+		</div>
+		<div class="sources">
+			<div class="sources-label">Sources</div>
+			<ul>
+				<li><a href="https://pudding.cool/2024/11/love-songs/">Is The Love Song Dying?</a>, The Pudding</li>
+			</ul>
+		</div>
+	</div>
+
+
+	<!-- Add Scripts Here -->
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<script src="js/rSlider.min.js"></script>
+	<script src="js/tooltip.js"></script>
+	<script src="js/main.js"></script>
+</body>
+
+</html>
