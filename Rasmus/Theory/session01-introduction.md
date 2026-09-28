@@ -12,6 +12,11 @@ The course has two main topics:
 
 Teaching elements: theory, exercises, hand-ins (3 mandatory D3.js/React hand-ins; oral exam based on one of them).
 
+From the official course description (`it-viz1-1-0.pdf`): 5 ECTS, 12 sessions, each starting with a theoretical introduction followed by a hands-on workshop. The exam is a **20-minute oral examination** where the student draws one of the known hand-ins and then broadens into the rest of the syllabus; assessment is internal, and all tools/resources introduced during the course are allowed. Learning objectives in short:
+- **Knowledge** – theoretical concepts of data visualization (models for design, systematic approaches to implementation), data types and their implications for the chosen visualization, visualization types, and key principles of data-related visual communication.
+- **Skills** – valid data preprocessing, applying appropriate visualization methods based on data type and requirements, implementing custom visualizations in D3.js.
+- **Competences** – using visualization to analyse datasets, developing strategies for presenting data insights, and evaluating visualization projects on design, communicative impact and implementation.
+
 ### On Generative AI use
 Recommended use is for **reviewing your own work only** — not for generating designs or code. Actually learning visualization requires:
 - Coming up with your own ideas
@@ -130,13 +135,14 @@ d3.json(`data/${fileNameJSON}`).then(rawData => {
 
 **3. Measuring** — get an overview of the data; needed to understand boundaries and drive scaling. Count elements, find min/max, group and measure within groups.
 ```js
-const groups = d3.groups(d => d.day);
+const groups = d3.groups(data, d => d.day);
 for ([day, data] of groups) {
   console.log(day);
   console.log(d3.count(data));
   console.log(d3.min(data, d => d.diastolic));
 }
 ```
+> The slide omits the `data` argument in the `d3.groups(…)` call; the real signature is `d3.groups(data, keyFn)`. Grouping and aggregation are treated properly in [Session 3](session03-manipulating-data.md) (`d3.group`, `d3.rollup`).
 
 **4. Scaling** — a mapping from data values to displayed values (positions, colours, text, …). Used for consistent display and is mandatory for things like chart axes. (Expanded further in [Session 2](session02-visual-encodings.md).)
 ```js
@@ -170,6 +176,7 @@ svg.append("circle")
 
 **5. Binding** — makes D3 reactive to data.
 Procedure: **select** elements → **define** the data → **join** with the data (updates elements to fit the data) → **format** the new (and old) elements.
+(`join` has a finer-grained enter/update/exit form, covered in [Session 4](session04-interactivity.md).)
 ```js
 svg.selectAll("circle")
   .data(data)

@@ -65,9 +65,13 @@ Users describe what they want in plain language; our job is to translate that in
 - Bar chart – ordinal key + quantitative value
 - Radial bar chart – cyclic key + quantitative value
 
+**Two discrete keys + quantitative value** (added in [Session 3](session03-manipulating-data.md)):
+- Stacked bar chart – compare, discover trends, lookup (harder)
+- Streamgraph – compare, discover trends, *enjoy* trends
+
 **Design pitfalls observed in examples:**
 - Too much information in one chart buries the intent (e.g. overlaying too many trend lines).
-- Colour choices matter even for a "simple" bar chart discovering trends.
+- Colour choices matter even for a "simple" bar chart discovering trends — match the palette to the attribute type (categorical vs. ordinal), see [Session 3](session03-manipulating-data.md).
 - "Gold-plating" (nice-to-have polish, e.g. a scrollable chart with a separate fixed axis) should come after the core design works — implemented with two stacked SVGs: a static axis SVG and a scrollable content SVG.
 
 ---
@@ -87,6 +91,7 @@ const svg = d3.select("#container")
 
 ### Binding (recap)
 Makes D3 reactive to data. Procedure: **select** elements → **define** the data → **join** with the data (updates elements to fit the data) → **format** the new (and old) elements.
+For data that changes at runtime, `join` takes separate enter/update/exit handlers and a key function — see [Session 4](session04-interactivity.md).
 ```js
 svg.selectAll("circle")
   .data(data)
@@ -127,6 +132,7 @@ const colorScale = d3.scaleLinear()
     .range([100, 500])
     .padding(0.2);
   ```
+  Calling the scale gives the **start** of a band; `.bandwidth()` gives the computed width of one band (handy for a `rect`'s `width`, and for centring a point inside its band with `+ bandwidth() / 2`).
 - `d3.scalePoint` — maps discrete domain values to *equidistant points* in the range.
 
 ---
