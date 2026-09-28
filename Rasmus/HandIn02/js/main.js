@@ -6,18 +6,22 @@ const innerWidth = width - margin.left - margin.right;
 const innerHeight = height - margin.top - margin.bottom;
 
 const ALL_CATEGORIES = 'All';
+const NOT_A_LOVE_SONG = 'Not a Love Song';
 const duration = 500;
 
 // Load the data here
 d3.csv('./data/love_song_categories_for_Billboard_Top_10_hits_1958_2023.csv', d => ({
   year: parseInt(d.top_10_debut_date_as_decimal),
-  category: d.love_song_category
-})).then(rows => {
-  // Rows without a category are not love songs, so they are left out.
-  const data = rows.filter(d => d.category !== '');
-  const songCategories = Array.from(new Set(data.map(d => d.category))).sort();
+  // Songs with an empty category are not love songs, so they get their own category.
+  category: d.love_song_category === '' ? NOT_A_LOVE_SONG : d.love_song_category
+})).then(data => {
+  // Non-love songs go first so they become the bottom layer of the stack and the
+  // love song categories stay grouped together above them.
+  const loveCategories = Array.from(new Set(data.map(d => d.category)))
+    .filter(category => category !== NOT_A_LOVE_SONG)
+    .sort();
 
-  createViz(data, songCategories);
+  createViz(data, [NOT_A_LOVE_SONG, ...loveCategories]);
 });
 
 // Create your visualization
@@ -145,9 +149,10 @@ function createViz(data, songCategories) {
     const xScale = d3.scaleLinear().range([0, innerWidth]);
     const yScale = d3.scaleLinear().range([innerHeight, 0]);
 
+    // Neutral grey for the non-love songs, so the love categories stand out.
     const colorScale = d3.scaleOrdinal()
       .domain(songCategories)
-      .range(d3.schemeTableau10);
+      .range(['#C1B9BA', ...d3.schemeTableau10]);
 
     const area = d3.area()
       .x(d => xScale(d.data.year))
