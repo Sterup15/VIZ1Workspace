@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 2.3 – Discover Trends</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        h1 { text-align: center; }
+        svg {
+            border: 2px solid #333;
+            background-color: #fafafa;
+            display: block;
+            margin: 20px auto;
+        }
+        .info {
+            background-color: #f0f8f0;
+            padding: 15px;
+            margin: 20px;
+            border-left: 4px solid #2ca02c;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .analysis {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 900px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .legend-text {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 20px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 30px;
+            vertical-align: middle;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .line {
+            fill: none;
+            stroke-width: 2;
+        }
+        .dot {
+            fill: white;
+            stroke-width: 2;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 8px 12px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise 2.3 – Discover Trends</h1>
+    
+    <div class="info">
+        <p><strong>Goal:</strong> Design and implement a visualization to discover trends in Google Trends data.</p>
+        <p><strong>Visualization Type:</strong> Multi-line chart showing search volume trends over time for each category.</p>
+        <p><strong>Key Insights to Look For:</strong> Peaks and valleys, seasonal patterns, category ranking over time, convergence/divergence of trends.</p>
+    </div>
+
+    <svg id="trend-chart" width="800" height="400"></svg>
+
+    <div class="legend-text">
+        <span class="legend-item">
+            <span class="legend-color" style="background-color: #1f77b4;"></span>
+            bar Horsens
+        </span>
+        <span class="legend-item">
+            <span class="legend-color" style="background-color: #ff7f0e;"></span>
+            cafe Horsens
+        </span>
+        <span class="legend-item">
+            <span class="legend-color" style="background-color: #2ca02c;"></span>
+            pizza Horsens
+        </span>
+    </div>
+
+    <div class="analysis">
+        <h2>Trend Analysis</h2>
+        <p id="trend-insights">Loading data...</p>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        // Exercise 2.3 – Discover Trends
+        // Visualize trends using a multi-line chart to spot patterns
+        
+        const dataPath = "../Selection/data/going_out_in_horsens_kw.json";
+        const types = ["bar Horsens", "cafe Horsens", "pizza Horsens"];
+        const colors = ["#1f77b4", "#ff7f0e", "#2ca02c"];
+        const parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L");
+
+        d3.json(dataPath).then(rawData => {
+            // Prepare data
+            const data = rawData.map(d => ({
+                date: parseDate(d.date),
+                dateStr: d.date.split("T")[0],
+                bars: d["bar Horsens"],
+                cafes: d["cafe Horsens"],
+                pizza: d["pizza Horsens"]
+            }));
+
+            // SVG dimensions
+            const svg = d3.select("#trend-chart");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+            const margin = { top: 20, right: 20, bottom: 50, left: 60 };
+            const innerWidth = width - margin.left - margin.right;
+            const innerHeight = height - margin.top - margin.bottom;
+            
+            const chart = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Scales
+            const x = d3.scaleTime()
+                .domain(d3.extent(data, d => d.date))
+                .range([0, innerWidth]);
+
+            const yMax = d3.max([
+                d3.max(data, d => d.bars),
+                d3.max(data, d => d.cafes),
+                d3.max(data, d => d.pizza)
+            ]);
+
+            const y = d3.scaleLinear()
+                .domain([0, yMax])
+                .nice()
+                .range([innerHeight, 0]);
+
+            const color = d3.scaleOrdinal()
+                .domain(types)
+                .range(colors);
+
+            // Line generator
+            const lineGen = d3.line();
+
+            // Create line data for each category
+            const lineData = [
+                { name: "bar Horsens", values: data.map(d => [x(d.date), y(d.bars)]) },
+                { name: "cafe Horsens", values: data.map(d => [x(d.date), y(d.cafes)]) },
+                { name: "pizza Horsens", values: data.map(d => [x(d.date), y(d.pizza)]) }
+            ];
+
+            // Add grid lines
+            chart.append("g")
+                .attr("class", "grid")
+                .attr("opacity", 0.1)
+                .call(d3.axisBottom(x)
+                    .tickSize(-innerHeight)
+                    .tickFormat(""));
+
+            // Draw lines
+            chart.selectAll(".line-group")
+                .data(lineData)
+                .join("g")
+                .attr("class", "line-group")
+                .call(g => {
+                    g.append("path")
+                        .attr("class", "line")
+                        .attr("d", d => lineGen(d.values))
+                        .attr("stroke", d => color(d.name));
+                });
+
+            // Add dots at data points
+            chart.selectAll(".dots")
+                .data(lineData)
+                .join("g")
+                .attr("class", "dots")
+                .selectAll(".dot")
+                .data(d => d.values)
+                .join("circle")
+                .attr("class", "dot")
+                .attr("cx", d => d[0])
+                .attr("cy", d => d[1])
+                .attr("r", 3)
+                .attr("stroke", (d, i) => {
+                    // Determine which line this dot belongs to
+                    const lineIndex = Math.floor(i / data.length);
+                    return color(types[lineIndex]);
+                });
+
+            // Add axes
+            chart.append("g")
+                .attr("transform", `translate(0,${innerHeight})`)
+                .call(d3.axisBottom(x).ticks(8).tickFormat(d3.timeFormat("%m/%d")));
+
+            chart.append("g")
+                .call(d3.axisLeft(y));
+
+            // Add axis labels
+            chart.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("x", -innerHeight / 2)
+                .attr("y", -45)
+                .attr("fill", "black")
+                .style("text-anchor", "middle")
+                .style("font-size", "14px")
+                .text("Search Volume");
+
+            chart.append("text")
+                .attr("x", innerWidth / 2)
+                .attr("y", innerHeight + 40)
+                .attr("fill", "black")
+                .style("text-anchor", "middle")
+                .style("font-size", "14px")
+                .text("Date");
+
+            // Add legend within SVG
+            const legend = svg.append("g")
+                .attr("transform", "translate(50, 15)");
+
+            legend.selectAll(".legend-item")
+                .data(types)
+                .join("g")
+                .attr("class", "legend-item")
+                .attr("transform", (d, i) => `translate(${i * 150}, 0)`)
+                .call(g => {
+                    g.append("line")
+                        .attr("x1", 0)
+                        .attr("y1", 0)
+                        .attr("x2", 15)
+                        .attr("y2", 0)
+                        .attr("stroke", d => color(d))
+                        .attr("stroke-width", 2);
+                    
+                    g.append("text")
+                        .attr("x", 20)
+                        .attr("y", 4)
+                        .style("font-size", "11px")
+                        .text(d => d);
+                });
+
+            // Analyze trends
+            const barTrend = data[data.length - 1].bars - data[0].bars;
+            const cafeTrend = data[data.length - 1].cafes - data[0].cafes;
+            const pizzaTrend = data[data.length - 1].pizza - data[0].pizza;
+
+            const barMax = d3.max(data, d => d.bars);
+            const cafeMax = d3.max(data, d => d.cafes);
+            const pizzaMax = d3.max(data, d => d.pizza);
+
+            const barMaxDate = data.find(d => d.bars === barMax).dateStr;
+            const cafeMaxDate = data.find(d => d.cafes === cafeMax).dateStr;
+            const pizzaMaxDate = data.find(d => d.pizza === pizzaMax).dateStr;
+
+            const insights = `
+                <strong>Key Findings:</strong><br>
+                <ul>
+                    <li><strong>Pizza</strong> shows the highest overall search volume (peak: ${pizzaMax} on ${pizzaMaxDate}). 
+                        Trend: ${pizzaTrend > 0 ? "increasing" : "decreasing"} (${Math.abs(pizzaTrend)} change from start to end).</li>
+                    <li><strong>Cafe</strong> is the second most searched (peak: ${cafeMax} on ${cafeMaxDate}). 
+                        Trend: ${cafeTrend > 0 ? "increasing" : "decreasing"} (${Math.abs(cafeTrend)} change).</li>
+                    <li><strong>Bar</strong> has lower search volume overall (peak: ${barMax} on ${barMaxDate}). 
+                        Trend: ${barTrend > 0 ? "increasing" : "decreasing"} (${Math.abs(barTrend)} change).</li>
+                    <li>The lines show distinct patterns: Pizza and Cafe peaks align more closely, while Bar trends independently.</li>
+                    <li>All categories show week-to-week volatility, suggesting seasonal or event-driven search behavior.</li>
+                </ul>
+            `;
+
+            document.getElementById("trend-insights").innerHTML = insights;
+
+        }).catch(error => console.error("Failed to load data:", error));
+    </script>
+</body>
+</html>

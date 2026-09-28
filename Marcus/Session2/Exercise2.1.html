@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VIZ1 – Exercise 2.1 – Planning the Layout</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        h1 { color: #333; }
+        h2 { color: #1f77b4; border-bottom: 2px solid #1f77b4; padding-bottom: 10px; }
+        .question {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff7f0e;
+        }
+        .answer {
+            background-color: #fffbf0;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #2ca02c;
+        }
+        code { background-color: #eee; padding: 2px 6px; border-radius: 3px; }
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .diagram {
+            background-color: #f0f0f0;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px dashed #999;
+            text-align: center;
+            font-family: monospace;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exercise 2.1 – Planning the Layout</h1>
+    <p>We want to create a bar chart that follows the layout shown in the exercise diagram. Below are the planning questions and answers:</p>
+
+    <!-- Question A -->
+    <div class="question">
+        <h2>a) How would you create the bars using scales?</h2>
+    </div>
+    <div class="answer">
+        <h3>Answer:</h3>
+        <p>To create the bars using scales, we use two main approaches:</p>
+        
+        <p><strong>1. X-axis Scale (Horizontal Positioning):</strong></p>
+        <ul>
+            <li>Use <code>d3.scaleBand()</code> for the date domain to allocate equal space for each date group</li>
+            <li>The band scale handles spacing and padding automatically</li>
+            <li>Within each band, offset each bar category by a fixed amount (e.g., 0, barWidth+1, 2*(barWidth+1))</li>
+        </ul>
+
+        <p><strong>2. Y-axis Scale (Vertical Positioning & Height):</strong></p>
+        <ul>
+            <li>Use <code>d3.scaleLinear()</code> to map search volume values to pixel heights</li>
+            <li>Domain: [0, max value from data]</li>
+            <li>Range: [innerHeight, 0] (inverted so higher values go up)</li>
+            <li>Bar height: <code>innerHeight - y(value)</code></li>
+            <li>Bar y-position: <code>y(value)</code></li>
+        </ul>
+
+        <p><strong>Code Pattern:</strong></p>
+        <pre>const x = d3.scaleBand()
+    .domain(dates)
+    .range([0, innerWidth])
+    .padding(0.1);
+
+const y = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.value)])
+    .range([innerHeight, 0]);
+
+// For grouped bars within each band:
+const barWidth = x.bandwidth() / 3;  // 3 categories
+chart.selectAll("rect")
+    .data(data)
+    .join("rect")
+    .attr("x", d => x(d.date) + types.indexOf(d.type) * barWidth)
+    .attr("y", d => y(d.value))
+    .attr("width", barWidth - 1)
+    .attr("height", d => innerHeight - y(d.value));</pre>
+    </div>
+
+    <!-- Question B -->
+    <div class="question">
+        <h2>b) How would you position the labels using scales?</h2>
+    </div>
+    <div class="answer">
+        <h3>Answer:</h3>
+        <p>Labels are positioned in two places:</p>
+
+        <p><strong>1. Y-axis Date Labels (Left side):</strong></p>
+        <ul>
+            <li>Use the same x scale (or derived scale) to compute y-positions for each date</li>
+            <li>X-position: Fixed at a constant left margin (e.g., -10px from axis, for text alignment)</li>
+            <li>Y-position: <code>x(date) + x.bandwidth() / 2</code> (center of each date band)</li>
+            <li>Use <code>d3.axisLeft(y)</code> to render the value axis automatically</li>
+            <li>Use D3 axis on transformed date axis to show date labels</li>
+        </ul>
+
+        <p><strong>2. X-axis Value Labels (Bottom):</strong></p>
+        <ul>
+            <li>Use <code>d3.axisBottom(y)</code> to show value ticks and labels</li>
+            <li>Positioned at y = innerHeight</li>
+        </ul>
+
+        <p><strong>3. Legend Labels:</strong></p>
+        <ul>
+            <li>Position absolute or within an SVG <code>&lt;g&gt;</code> group at fixed coordinates</li>
+            <li>Each label corresponds to a color and category</li>
+        </ul>
+
+        <p><strong>Code Pattern:</strong></p>
+        <pre>// Y-axis (dates on left)
+const yAxis = d3.axisLeft(x)
+    .tickFormat(d => d3.timeFormat("%Y-%m-%d")(d));
+chart.append("g")
+    .call(yAxis);
+
+// X-axis (values at bottom)
+chart.append("g")
+    .attr("transform", `translate(0, ${innerHeight})`)
+    .call(d3.axisBottom(y));</pre>
+    </div>
+
+    <!-- Question C -->
+    <div class="question">
+        <h2>c) How would you use groups (&lt;g&gt;) to create the legend?</h2>
+    </div>
+    <div class="answer">
+        <h3>Answer:</h3>
+        <p>SVG <code>&lt;g&gt;</code> (group) elements organize visual elements hierarchically. Use them for the legend like this:</p>
+
+        <p><strong>Structure:</strong></p>
+        <ul>
+            <li>Create one main <code>&lt;g&gt;</code> for the entire legend, positioned at fixed coordinates (e.g., top-left)</li>
+            <li>Within that, create a separate <code>&lt;g&gt;</code> for each category</li>
+            <li>Each category group contains:
+                <ul>
+                    <li>A colored <code>&lt;rect&gt;</code> (color swatch)</li>
+                    <li>A <code>&lt;text&gt;</code> label (category name)</li>
+                </ul>
+            </li>
+            <li>Use <code>.attr("transform", `translate(x, y)`)</code> to offset each item</li>
+        </ul>
+
+        <p><strong>Code Pattern:</strong></p>
+        <pre>const legend = svg.append("g")
+    .attr("transform", "translate(20, 20)");  // Top-left position
+
+const legendData = ["bar Horsens", "cafe Horsens", "pizza Horsens"];
+const colors = ["#1f77b4", "#ff7f0e", "#2ca02c"];
+
+const legendItems = legend.selectAll(".legend-item")
+    .data(legendData)
+    .join("g")
+    .attr("class", "legend-item")
+    .attr("transform", (d, i) => `translate(0, ${i * 20})`);  // Vertical spacing
+
+legendItems.append("rect")
+    .attr("width", 15)
+    .attr("height", 15)
+    .attr("fill", (d, i) => colors[i]);
+
+legendItems.append("text")
+    .attr("x", 20)
+    .attr("y", 12)
+    .text(d => d)
+    .style("font-size", "12px");</pre>
+
+        <p><strong>Visual Layout (ASCII representation):</strong></p>
+        <div class="diagram">
+Legend Group (g)
+├─ Legend Item 1 (g, y=0)
+│  ├─ rect (15x15, #1f77b4)
+│  └─ text "bar Horsens" (x=20)
+├─ Legend Item 2 (g, y=20)
+│  ├─ rect (15x15, #ff7f0e)
+│  └─ text "cafe Horsens" (x=20)
+└─ Legend Item 3 (g, y=40)
+   ├─ rect (15x15, #2ca02c)
+   └─ text "pizza Horsens" (x=20)
+        </div>
+
+        <p><strong>Benefits of using groups:</strong></p>
+        <ul>
+            <li>Encapsulation: Related elements stay together</li>
+            <li>Transform inheritance: Child elements inherit group transforms</li>
+            <li>Easy repositioning: Move entire legend by changing group transform once</li>
+            <li>Scalability: Easy to add/remove legend items via data binding</li>
+        </ul>
+    </div>
+
+    <hr>
+    <p><em>These answers form the basis for Exercise 2.2, where we implement the full bar chart layout.</em></p>
+</body>
+</html>
