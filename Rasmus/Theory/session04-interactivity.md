@@ -2,6 +2,7 @@
 
 Source: Tamara Munzner, *"Visualization – Analysis & Design"*.
 Builds on the charts produced in [Session 3](session03-manipulating-data.md); this session makes them respond to the user.
+[Session 5](session05-exploratory-visualizations.md) then steps back to the design process that should precede all of this.
 
 ---
 

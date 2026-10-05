@@ -7,6 +7,8 @@ Builds directly on the What/Why/How framework and D3.js pipeline from [Session 1
 
 ## The "What": Data
 
+> This is the short version. [Session 5](session05-exploratory-visualizations.md) covers the same vocabulary in full from the book (chapters 2–3), including ordering direction, key/value semantics and the three levels of actions.
+
 ### Data types (elements of a dataset)
 - **Items** – samples, objects, rows, nodes in a graph
 - **Attributes** – properties of items
