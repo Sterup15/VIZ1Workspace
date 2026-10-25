@@ -125,6 +125,8 @@ const colorScale = d3.scaleLinear()
 - `d3.scaleDiverging` — continuous colour scale for diverging data (e.g. blue → grey → red).
 - `d3.scaleQuantile` / `d3.scaleQuantize` / `d3.scaleThreshold` — discrete colour scales via binning the data.
 
+> Which colours go *into* these scales is a perception question. Ordered data should vary in **luminance/saturation** rather than hue, and rainbow ramps shouldn't be used for ordered data — see [Session 6 §7–8](session06-effective-communication.md).
+
 **Types of scaling for ordinal / categorical data:**
 - `d3.scaleOrdinal` — manual 1-to-1 mapping of domain values to range values.
 - `d3.scaleBand` — maps discrete domain values to *intervals* of the range (good for bar chart bars); supports `.padding()`.

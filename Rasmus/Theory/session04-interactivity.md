@@ -122,6 +122,8 @@ Small animations that carry the visualization from one state to the next — fad
 
 **But:** beware of distracting the user.
 
+> The perception behind both points is in [Session 6](session06-effective-communication.md). Motion is the most attention-grabbing channel there is (*"nearly impossible to ignore"*), and things that move together are read as one group — the Gestalt principle of **common fate**.
+
 ```js
 dom.toolTip
   .attr('transform', `translate(${x}, ${y})`)
