@@ -375,7 +375,7 @@ A quick self-check, from Munzner's chapter 6 rules of thumb: **"get it right in 
 | **Length** | Magnitude | Very accurate (n ≈ 1). Can't be used together with area to encode different things |
 | **Area** | Magnitude | n ≈ 0.7 — middle of the ranking. Width + height fuse into one area perception |
 | **Volume** | Magnitude | Bottom of the ranking — *"rarely the right choice"* |
-| **Angle / tilt** | Magnitude | Above area. Accurate near 0°, 45° and 90° — you can tell 89° from 90° but not 37° from 38°. Sequential within one quadrant (90°), **diverging** over a half circle (180°), **cyclic** over a full circle with an arrow |
+| **Angle / tilt** | Magnitude | Above area. Accurate near 0°, 45° and 90° — you can tell 89° from 90° but not 37° from 38°. Sequential within one quadrant (90°), **diverging** over a half circle (180°), **cyclic** over a full circle with an arrow. Radial layouts are built on this channel — see [Session 7](session07-radial-visualizations.md) |
 | **Curvature** | Magnitude | Line marks only; 2–3 bins |
 | **Shape** | Identity | Point and line marks — on lines it becomes dashed/dotted patterns. Many bins when large, about a dozen at 10×10 px. Filled shapes carry hue better than thin crosses |
 | **Motion** | Identity | Extremely salient and separable from static channels, *"nearly impossible to ignore."* Safest as **binary**: moving vs. still. Best for **temporary highlighting**, e.g. on hover |

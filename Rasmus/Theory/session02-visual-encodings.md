@@ -65,7 +65,7 @@ Users describe what they want in plain language; our job is to translate that in
 
 **Compare values:**
 - Bar chart – ordinal key + quantitative value
-- Radial bar chart – cyclic key + quantitative value
+- Radial bar chart – cyclic key + quantitative value (when radial is justified, and how to build it, is in [Session 7](session07-radial-visualizations.md))
 
 **Two discrete keys + quantitative value** (added in [Session 3](session03-manipulating-data.md)):
 - Stacked bar chart – compare, discover trends, lookup (harder)
