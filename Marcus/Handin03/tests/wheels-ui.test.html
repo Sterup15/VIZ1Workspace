@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comparison wheels - browser tests</title>
+  <link rel="icon" href="data:,">
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; margin: 24px; }
+    .pass { color: #245735; } .fail { color: #a42626; }
+    iframe { width: 100%; height: 850px; border: 1px solid #a5afb5; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Comparison-wheel tests</h1>
+  <p><a href="../comparison.html">Back to the alternative</a> | <a href="ui.test.html">Original browser tests</a></p>
+  <p>Runs the wheel model tests and real-page interaction checks. Failure fixtures deliberately log errors.</p>
+  <p id="status" role="status">Running...</p>
+  <ol id="results"></ol>
+  <iframe id="app" title="Comparison wheels under test"></iframe>
+  <script src="../js/vendor/d3.v7.min.js"></script>
+  <script type="module">
+    import("./wheels-ui.test.js").catch(error => {
+      console.error("Comparison test runner failed:", error);
+      document.querySelector("#status").textContent = `Unable to complete tests: ${error.message}`;
+      document.body.dataset.testResult = "failed";
+    });
+  </script>
+</body>
+</html>
