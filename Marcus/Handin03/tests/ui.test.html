@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boyband Blueprint - browser tests</title>
+  <link rel="icon" href="data:,">
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; margin: 24px; }
+    .pass { color: #245735; } .fail { color: #a42626; }
+    iframe { width: 100%; height: 850px; border: 1px solid #a5afb5; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Browser interaction tests</h1>
+  <p><a href="../index.html">Back to the visualization</a> | <a href="model.test.html">Model tests</a></p>
+  <p>Tests run the real application in a same-origin frame. Error tests deliberately simulate failed or invalid data and a missing library; those diagnostics are expected.</p>
+  <p id="status" role="status">Running browser tests...</p>
+  <ol id="results"></ol>
+  <iframe id="app" title="Application under test"></iframe>
+  <script type="module">
+    import("./ui.test.js").catch(error => {
+      console.error("Browser test runner failed:", error);
+      document.querySelector("#status").textContent = `Unable to complete browser tests: ${error.message}`;
+      document.body.dataset.testResult = "failed";
+    });
+  </script>
+</body>
+</html>
