@@ -296,7 +296,7 @@ Use these when segments are too small for text: place the label at `arc.centroid
 Nothing new compared to [Session 4](session04-interactivity.md): arcs are just `<path>` elements, so `.on('click', (event, d) => update(...))` works as usual. And `d.data` gives the original row when the data came through `d3.pie()`.
 
 Common interactions (Hand-in 3's examples):
-- **Click** an arc to reveal details or members (a details panel).
+- **Click** an arc to reveal details or members (a details panel). This is the **list–detail** form of focus + context: the circle is the context, the panel is the focus ([Session 8 §6.2](session08-explanatory-approach.md)).
 - **Hover** to highlight. A cheap effect is to redraw the hovered arc with a slightly bigger `outerRadius`.
 - **Filter** by an attribute, then fade the non-matching segments (figure–ground from Session 6).
 

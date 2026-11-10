@@ -55,6 +55,8 @@ Grouping alone doesn't give you something to draw — it gives you *piles of row
 
 ## 2. Aggregating
 
+> In Munzner's terms (ch. 13), grouping and aggregating is **item aggregation**, one of the *reduction* choices. Its risk is that a summary can hide the interesting signal — see [Session 8 §6.1](session08-explanatory-approach.md).
+
 ### 2a. The manual way (`d3.group` + `Array.from`)
 
 This is what we did in session 2: group first, then map each `[key, rows]` entry into an object with the numbers you want.

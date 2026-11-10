@@ -34,6 +34,8 @@ Interaction is a design decision, not a default. Ask:
   - *Semantic* — showing different/more detail at closer zoom, not just bigger marks
 - **Aggregation** — changing the level at which data is grouped
 
+> Filtering and aggregation are Munzner's *reduction* choices, and their trade-offs are in [Session 8 §6](session08-explanatory-approach.md). Note also that a **hover-only** tooltip is unreachable for keyboard and screen-reader users, so offer the same details another way (Session 8 §8.3).
+
 ---
 
 ## The Model-View-Update pattern
