@@ -16,6 +16,16 @@ const degree = Math.PI / 180;
 // The slider moves in steps of 5 degrees of the wheel
 const sliderSteps = 72;
 
+// Stretching the wheel (see computeWarp): each band gets up to 8 degrees, all bands
+// together at most 65% of the circle, the rest is shared evenly by the whole wheel.
+const warpBins = 1440;
+const degreesPerBand = 8;
+const maxBandShare = 0.65;
+// A colour's block is centred on its position and this wide (as a fraction of the wheel)
+const blockWidth = 0.004;
+// Total width of the gaps between the colour and greyscale wheels
+const gapDegrees = 12;
+
 const ATTRIBUTE_LABELS = {
   overall: 'Overall outfit',
   shirt: 'Shirt',
@@ -133,10 +143,72 @@ function createViz(data) {
     return t !== null && t >= model.range[0] && t <= model.range[1];
   }
 
-  // Fraction of the wheel -> angle in degrees on screen. The selected range fills the
-  // whole circle, so narrowing the range spreads those colours out.
-  function displayAngle(t) {
-    return (t - model.range[0]) / (model.range[1] - model.range[0]) * 360;
+  // The wheel is stretched where there are bands. Every shown band gets the same slice of
+  // the circle, at its signature colour, so a colour with 30 bands gets a wide block and a
+  // colour with none only keeps a thin base share. The selected range fills the whole circle.
+  // The range is split into small bins; each bin gets a number of degrees (its weight).
+  function computeWarp(bandCounts) {
+    const [start, end] = model.range;
+    const binWidth = (end - start) / warpBins;
+    const binCentre = i => start + (i + 0.5) * binWidth;
+    const totalBands = d3.sum(bandCounts.values());
+    const bandSpace = Math.min(totalBands * degreesPerBand, 360 * maxBandShare);
+
+    // The gaps between the colour and greyscale wheels keep a fixed width
+    const isGap = d3.range(warpBins).map(i => trackColour(binCentre(i)) === null);
+    const gapBins = isGap.filter(Boolean).length;
+    const gapSpace = gapBins > 0 ? gapDegrees : 0;
+    const baseWeight = (360 - bandSpace - gapSpace) / (warpBins - gapBins);
+    const weights = isGap.map(gap => gap ? gapSpace / gapBins : baseWeight);
+
+    // Each colour's extra degrees go into a narrow block of bins around its position.
+    // On the full colour cycle a block may wrap past the top; otherwise it is kept inside.
+    const half = Math.max(1, Math.round(blockWidth / 2 / binWidth));
+    const wrap = i => (i % warpBins + warpBins) % warpBins;
+    const binColour = new Array(warpBins).fill(null);
+    const blocks = new Map();
+    for (const [colour, count] of bandCounts) {
+      const centre = Math.min(warpBins - 1, Math.floor((trackPosition(colour) - start) / binWidth));
+      let first = centre - half;
+      let last = centre + half;
+      if (!isCycle()) {
+        const shift = Math.max(0, -first) - Math.max(0, last - (warpBins - 1));
+        first += shift;
+        last += shift;
+      }
+      const extra = count / totalBands * bandSpace / (last - first + 1);
+      for (let i = first; i <= last; i++) {
+        weights[wrap(i)] += extra;
+        binColour[wrap(i)] = colour;
+      }
+      blocks.set(colour, { first, last });
+    }
+
+    // edges[i] = the angle where bin i starts
+    const edges = [0];
+    weights.forEach((w, i) => edges.push(edges[i] + w));
+
+    // Position on the wheel (0-1) -> angle on screen
+    function toAngle(t) {
+      const position = Math.max(0, Math.min(warpBins, (t - start) / binWidth));
+      const i = Math.min(warpBins - 1, Math.floor(position));
+      return edges[i] + (position - i) * weights[i];
+    }
+
+    // Angle on screen -> the bin there, and the position on the wheel (0-1)
+    function atAngle(angle) {
+      const i = Math.max(0, Math.min(warpBins - 1, d3.bisectRight(edges, angle) - 1));
+      return { bin: i, t: start + (i + (angle - edges[i]) / weights[i]) * binWidth };
+    }
+
+    // The block of degrees a colour got, which can start below 0 when it wraps past the top
+    function block(colour) {
+      const { first, last } = blocks.get(colour);
+      const from = first < 0 ? edges[wrap(first)] - 360 : edges[first];
+      return { from, to: from + d3.sum(d3.range(first, last + 1), i => weights[wrap(i)]) };
+    }
+
+    return { toAngle, atAngle, block, binColour };
   }
 
   function isFullRange() {
@@ -152,24 +224,25 @@ function createViz(data) {
   // Works out where every band, label and tick goes
   function computeLayout() {
     const attribute = model.attribute;
-    const positions = data.bands.filter(isVisible).map(band => ({
-      band,
-      colour: band[attribute].colour,
-      target: displayAngle(trackPosition(band[attribute].colour)),
-      radius: uniformityScale(band[attribute].uniformity)
-    }));
+    const groups = d3.groups(data.bands.filter(isVisible), band => band[attribute].colour);
+    const warp = computeWarp(new Map(groups.map(([colour, list]) => [colour, list.length])));
 
-    // Bands with the same signature colour sit side by side, sorted by uniformity, and
-    // are pushed apart just enough that their dots don't sit on top of each other.
-    positions.sort((a, b) => a.target - b.target || a.colour.localeCompare(b.colour) ||
-      a.band[attribute].uniformity - b.band[attribute].uniformity);
-    const minGap = Math.min(4, 340 / Math.max(positions.length, 1));
-    const angles = spread(positions.map(d => d.target), minGap, isCycle());
-    positions.forEach((d, i) => d.angle = angles[i]);
+    // The bands of a colour share its block evenly, sorted by uniformity, so each band gets
+    // its own straight stem. Bands keep their place on the wheel: target is the stem's foot.
+    const positions = [];
+    const labels = [];
+    for (const [colour, list] of groups) {
+      const { from, to } = warp.block(colour);
+      list.sort((a, b) => a[attribute].uniformity - b[attribute].uniformity || a.name.localeCompare(b.name));
+      list.forEach((band, i) => {
+        const target = (from + (i + 0.5) / list.length * (to - from) + 360) % 360;
+        positions.push({ band, colour, target, angle: target, radius: uniformityScale(band[attribute].uniformity) });
+      });
+      labels.push({ colour, count: list.length, target: ((from + to) / 2 + 360) % 360 });
+    }
 
-    // One label per signature colour, also pushed apart so they don't overlap
-    const labels = d3.groups(positions, d => d.colour)
-      .map(([colour, list]) => ({ colour, count: list.length, target: list[0].target }));
+    // One label per signature colour, pushed apart so they don't overlap
+    labels.sort((a, b) => a.target - b.target);
     const labelAngles = spread(labels.map(d => d.target), 7, isCycle());
     labels.forEach((d, i) => d.angle = labelAngles[i]);
 
@@ -178,9 +251,9 @@ function createViz(data) {
     const ticks = Array.from(values)
       .map(colour => ({ colour, t: trackPosition(colour) }))
       .filter(d => d.t !== null && d.t >= model.range[0] && d.t <= model.range[1])
-      .map(d => ({ colour: d.colour, angle: displayAngle(d.t) }));
+      .map(d => ({ colour: d.colour, angle: warp.toAngle(d.t) }));
 
-    return { positions, labels, ticks };
+    return { positions, labels, ticks, warp };
   }
 
   // All values of the current attribute in one band, e.g. all its shirt colours
@@ -189,18 +262,22 @@ function createViz(data) {
     return band.members.flatMap(m => attributes.map(a => m[a])).filter(v => v !== null);
   }
 
-  // The wheel: 720 thin slices, each with the wheel's colour at that angle.
+  // The wheel: 720 thin slices, each with the wheel's colour at that angle. A colour's
+  // stretched block is filled with the colour itself (e.g. navy, not the blue of its hue).
   // Slices in the gap between the colour and greyscale wheels are left out.
   function drawRing(layout) {
     const arcGenerator = d3.arc().innerRadius(ringInner).outerRadius(ringOuter);
-    const [start, end] = model.range;
     const slices = d3.range(720)
-      .map(i => ({
-        startAngle: i / 2 * degree,
-        // Slices overlap by a hair so no background shows through between them
-        endAngle: (i + 1) / 2 * degree + 0.002,
-        fill: trackColour(start + (i + 0.5) / 720 * (end - start))
-      }))
+      .map(i => {
+        const { bin, t } = layout.warp.atAngle((i + 0.5) / 2);
+        const named = layout.warp.binColour[bin];
+        return {
+          startAngle: i / 2 * degree,
+          // Slices overlap by a hair so no background shows through between them
+          endAngle: (i + 1) / 2 * degree + 0.002,
+          fill: named ? COLOUR_HEX[named] : trackColour(t)
+        };
+      })
       .filter(d => d.fill !== null);
 
     dom.ring.selectAll('path')
