@@ -245,6 +245,8 @@ bars.append('title').text(d => `${d.ingredient}: ${d.share}%`);
 
 Then add an HTML **data table** below or beside the chart (visible, or as a "show data" toggle). That covers the *"don't let the visualization stand alone"* rule completely.
 
+> In React ([Session 9](session09-visualization-architecture.md)) the same markup is written directly in JSX: `<svg role='img' aria-labelledby='chart-title chart-desc'>`. `role` and `aria-*` keep their hyphens there. Session 9 §10 also makes a tooltip keyboard-reachable with `tabIndex`, `onFocus` and the arrow keys.
+
 ---
 
 ## 9. Worked example: Exercise 8.1 — cookies
@@ -316,7 +318,7 @@ A good exam answer: *the process includes a check, and this conclusion fails it.
 
 *"Choose one of your visualizations. What would you improve in terms of accessibility? Why?"*
 
-Running the §8 rules against **[HandIn02](../HandIn02/js/main.js)** (the love-song streamgraph) as an example:
+Running the §8 rules against **[HandIn02](../../../Rasmus/HandIn02/js/main.js)** (the love-song streamgraph) as an example:
 
 | Area | Current state | Improvement | Why |
 |---|---|---|---|

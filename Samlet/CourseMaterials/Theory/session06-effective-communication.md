@@ -419,7 +419,7 @@ The two vocabularies describe the same thing:
 
 ## 12. Worked example: analysing a real chart
 
-Running the analysis on your own **HandIn02 streamgraph** ([main.js](../HandIn02/js/main.js)) — the same steps Exercise 6.1 asks for.
+Running the analysis on your own **HandIn02 streamgraph** ([main.js](../../../Rasmus/HandIn02/js/main.js)) — the same steps Exercise 6.1 asks for.
 
 **Marks**
 - **Areas** — one `<path>` per love-song category, made with `d3.area()`.

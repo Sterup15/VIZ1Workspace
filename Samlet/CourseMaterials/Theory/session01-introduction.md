@@ -108,6 +108,8 @@ svg.append("text")
   .text("Systolic Pressure");
 ```
 
+> Here D3 is loaded with a `<script>` tag. From [Session 9](session09-visualization-architecture.md) it's installed with npm and imported (`import * as d3 from 'd3'`) inside a React project.
+
 ### The data pipeline: Load → Format → Measure → Scale → Bind
 
 **1. Loading — data formats (`d3-fetch`)**

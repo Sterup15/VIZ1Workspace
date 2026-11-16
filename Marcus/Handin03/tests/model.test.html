@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boyband Blueprint - model tests</title>
+  <link rel="icon" href="data:,">
+  <style>
+    body { font: 16px/1.6 system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 1rem; }
+    .pass { color: #245735; } .fail { color: #a42626; }
+  </style>
+</head>
+<body>
+  <h1>Data and geometry tests</h1>
+  <p><a href="../index.html">Back to the visualization</a></p>
+  <p id="status" role="status">Running tests...</p>
+  <ol id="results"></ol>
+  <script src="../js/vendor/d3.v7.min.js"></script>
+  <script type="module">
+    import { runTests } from "./model.test.js";
+    const status = document.querySelector("#status");
+    try {
+      if (!window.d3) throw new Error("The local D3 distribution could not be loaded.");
+      const text = await d3.text("../boys.csv");
+      const results = runTests(d3, text);
+      for (const result of results) {
+        const item = document.createElement("li");
+        item.className = result.passed ? "pass" : "fail";
+        item.textContent = `${result.passed ? "PASS" : "FAIL"}: ${result.name}${result.error ? ` - ${result.error}` : ""}`;
+        document.querySelector("#results").append(item);
+      }
+      status.textContent = `${results.filter(result => result.passed).length}/${results.length} tests passed.`;
+      document.body.dataset.testResult = results.every(result => result.passed) ? "passed" : "failed";
+    } catch (error) {
+      console.error(error);
+      status.textContent = `Tests failed to run: ${error.message}`;
+      document.body.dataset.testResult = "failed";
+    }
+  </script>
+</body>
+</html>

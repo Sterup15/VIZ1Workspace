@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Boyband Blueprint - Matching Outfits?</title>
+  <meta name="description" content="Explore how recorded clothing-colour matching varies between bands of different sizes.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <a class="skip-link" href="#controls">Skip to controls</a>
+  <main class="page">
+    <header class="intro">
+      <p class="eyebrow">The Boyband Blueprint / VIZ1</p>
+      <h1>Matching outfits?</h1>
+      <p class="question">How does clothing-colour matching vary with band size?</p>
+    </header>
+
+    <form id="controls" class="controls" aria-label="Explore the bands">
+      <fieldset id="control-fields" disabled>
+        <legend class="visually-hidden">Choose clothing, focus a size group and inspect a band</legend>
+        <div class="control">
+          <label for="garment">Compare clothing</label>
+          <select id="garment" name="garment">
+            <option value="bottom_color">Bottoms</option>
+            <option value="shirt_color">Shirts</option>
+          </select>
+        </div>
+        <div class="control band-control">
+          <label for="band-select">Look inside a band</label>
+          <select id="band-select" name="band"><option value="">Choose a band...</option></select>
+        </div>
+        <div id="group-controls" class="group-controls" role="group" aria-label="Band-size colour key and group focus"></div>
+      </fieldset>
+    </form>
+    <p id="chart-status" class="status" role="status">Loading member records...</p>
+    <p id="announcement" class="visually-hidden" role="status" aria-live="polite"></p>
+
+    <div class="workspace">
+      <section class="chart-section" aria-label="Band size and matching-pair scores">
+        <p class="scroll-hint" id="scroll-hint">Scroll the chart sideways on a small screen, or use the band selector above.</p>
+        <div id="chart-scroll" class="chart-scroll" tabindex="0" role="region" aria-label="Scrollable radial chart" aria-describedby="scroll-hint reading-guide">
+          <div id="viz"></div>
+        </div>
+        <p id="unavailable" class="coverage-note" hidden></p>
+        <p id="reading-guide" class="reading-guide"><strong>One dot = one band. Further out = more matching pairs.</strong><br>
+          Colour identifies band size; wider arcs contain more bands. Select a dot to see the members.</p>
+        <p class="small-note">Recorded looks, not proof of deliberate coordination. Only 2 six-member bands and 1 seven-member band.</p>
+      </section>
+
+      <section id="detail-panel" class="detail-panel" aria-labelledby="detail-title" hidden>
+        <div class="detail-heading">
+          <div>
+            <h2 id="detail-title">Look inside a band</h2>
+            <p id="detail-subtitle" class="detail-subtitle"></p>
+          </div>
+          <button id="clear-selection" type="button">Clear selection</button>
+        </div>
+        <div class="detail-grid">
+          <div>
+            <p class="score-label">Matching pairs</p>
+            <p id="detail-score" class="detail-score"></p>
+            <p id="detail-pairs"></p>
+            <p id="detail-coverage" class="coverage-note"></p>
+            <details id="category-summary">
+              <summary>Category summary</summary>
+              <h3>Most common recorded colour</h3>
+              <p id="detail-mode"></p>
+              <ul id="colour-counts" class="colour-counts"></ul>
+            </details>
+          </div>
+          <div>
+            <h3 class="member-heading">Member records</h3>
+            <ul id="member-list" class="member-list"></ul>
+            <p class="small-note">Swatches represent named categories, not measured shades.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <details class="method" id="method">
+      <summary>How the score works and what it cannot tell us</summary>
+      <div class="method-columns">
+        <div>
+          <h3>Count pairs, not matching members</h3>
+          <p>For each colour category, count the distinct pairs of members with that category.
+            Divide their sum by all possible pairs with known colours.</p>
+          <p class="formula">Matching score = matching pairs / all known-member pairs</p>
+          <p><strong>0%:</strong> every known category is different. <strong>100%:</strong> all known categories match.
+            Missing colours never count as matches. Fewer than two known colours means unavailable, not 0%.</p>
+          <p>For example, Shai's bottoms have two black and two navy-blue records:
+            <strong>2 matching pairs out of 6 = 33.3%</strong>. This is not the percentage of members wearing one colour.</p>
+        </div>
+        <div>
+          <h3>Read the circle carefully</h3>
+          <p>The complete circle represents all 55 bands. Arc widths show each size group's share of those bands.
+            Sizes run clockwise from 3 to 7, starting at the top; band size is not a cycle.
+            The inner score guide is 0%, the middle 50%, and the outer 100%.</p>
+          <p>Changing the garment preserves positions around the circle. Focusing a group keeps the other bands
+            in view. An aligned dot plot would allow more accurate numerical comparisons than radial positions.</p>
+          <p>Black and navy blue remain different categories. Two &quot;patterned&quot; entries match as categories,
+            not necessarily as actual patterns. These records do not establish permanent band identities,
+            styling intentions or causation.</p>
+        </div>
+      </div>
+    </details>
+    <footer>
+      <p>Source: the course-provided <a href="boys.csv">boyband dataset</a>.
+        234 member records, not necessarily 234 distinct people.</p>
+      <p><a href="readme.txt">Run instructions</a> &middot; <a href="tests/model.test.html">Data tests</a></p>
+    </footer>
+  </main>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden>
+    <strong id="tooltip-title"></strong>
+    <p id="tooltip-summary"></p>
+    <p id="tooltip-pairs"></p>
+    <p id="tooltip-coverage"></p>
+  </div>
+  <noscript><p class="noscript">JavaScript is required to load the data and use this visualization.</p></noscript>
+  <script src="js/vendor/d3.v7.min.js"></script>
+  <script type="module">
+    import("./js/main.js").then(({ start }) => start()).catch(error => {
+      console.error("Boyband Blueprint failed to start:", error);
+      document.querySelector("#chart-status").textContent = `Unable to load the visualization: ${error.message}. Serve this folder over HTTP and check that its files are present.`;
+      document.querySelector("#chart-status").classList.add("error");
+      document.querySelector("#control-fields").disabled = true;
+      document.body.dataset.appState = "error";
+    });
+  </script>
+</body>
+</html>

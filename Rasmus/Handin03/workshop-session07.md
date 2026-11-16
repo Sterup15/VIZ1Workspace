@@ -1,7 +1,7 @@
 # VIZ1 – Session 7: Visualization Workshop
 
 Questions from *VIZ1 (7) – Visualization Workshop*, in slide order. Dataset: [boys.csv](boys.csv).
-Theory: [Session 5](../Theory/session05-exploratory-visualizations.md) (data and questions), [Session 6](../Theory/session06-effective-communication.md) (marks and channels), [Session 7](../Theory/session07-radial-visualizations.md) (radial geometry).
+Theory: [Session 5](../../Samlet/CourseMaterials/Theory/session05-exploratory-visualizations.md) (data and questions), [Session 6](../../Samlet/CourseMaterials/Theory/session06-effective-communication.md) (marks and channels), [Session 7](../../Samlet/CourseMaterials/Theory/session07-radial-visualizations.md) (radial geometry).
 
 ---
 

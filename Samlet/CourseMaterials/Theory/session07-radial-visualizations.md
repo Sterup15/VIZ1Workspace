@@ -4,7 +4,7 @@ The session that should have covered radial charts in D3 was cancelled, so this 
 
 **Sources**
 - Book: Munzner, *Visualization Analysis & Design* — **§7.6.3 Radial Layouts**. This builds on the channel rankings in chapter 5 and the angle channel in §10.4.2, both summarised in [Session 6](session06-effective-communication.md).
-- [How to build a Radial Bar Chart with D3 JS and React JS](https://dev.to/simbamkenya/how-to-build-a-radial-bar-chart-with-d3-js-and-react-js-3cil) (DEV Community).
+- [How to build a Radial Bar Chart with D3 JS and React JS](https://dev.to/simbamkenya/how-to-build-a-radial-bar-chart-with-d3-js-and-react-js-3cil) (DEV Community). It uses React; how D3 and React fit together is covered in [Session 9](session09-visualization-architecture.md).
 - [D3 Graph Gallery](https://d3-graph-gallery.com/index.html), especially the [circular barplot](https://d3-graph-gallery.com/circular_barplot.html) and its [labels example](https://d3-graph-gallery.com/graph/circular_barplot_label.html).
 - [Recapping radials](https://www.storytellingwithdata.com/blog/2019/7/15/recapping-radials) (*storytelling with data*) — over 50 radial charts, with a critique.
 - Slides: *VIZ1 (7) – Visualization Workshop*. Brief: `Handin3.docx`.

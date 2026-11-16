@@ -70,6 +70,8 @@ view(state);
 - The `update` method ensures all functions work on the **same state**: it merges a patch into the model and re-runs the view.
 - Note the use of `state.model` rather than `this.model` — so the method keeps working when it is destructured or passed as a callback.
 
+> React has this pattern built in: the model is `useState`, `update` is the setter, and the view is the component function, which React re-runs automatically. See [Session 9 §2](session09-visualization-architecture.md).
+
 ### Code structure
 
 - In this example, events are handled inside `view`. You could also write a separate `createEvents` function.
@@ -210,6 +212,8 @@ Note that `.remove()` comes *after* the transition, so the element is only delet
 - In JavaScript, `{country: 'DK', age: 37} != {country: 'DK', age: 37}` — objects have no `equals()` method, so identity comparison fails.
 - Without a key function, D3 matches old and new data **by array index**, which makes **no sense** when the data is filtered or reordered: the "same" circle would suddenly represent a different country.
 - Adding a key function tells D3 how to identify a datum, so enter/update/exit sets are computed correctly.
+
+> React's `key` prop on list elements is the same idea ([Session 9 §5](session09-visualization-architecture.md)).
 
 ---
 

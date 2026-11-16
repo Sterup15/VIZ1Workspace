@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^python3 - <<'PY'\nfrom zipfile import ZipFile\nfrom xml\\.etree import ElementTree as ET\np='Marcus/Handin03/Handin03 design workshop\\.docx'\nns=\\{'w':'http://schemas\\.openxmlformats\\.org/wordprocessingml/2006/main'\\}\nwith ZipFile\\(p\\) as z:\n    root=ET\\.fromstring\\(z\\.read\\('word/document\\.xml'\\)\\)\n    for i, para in enumerate\\(root\\.findall\\('\\.//w:p',ns\\)\\):\n        text=''\\.join\\(t\\.text or '' for t in para\\.findall\\('\\.//w:t',ns\\)\\)\n        if text: print\\(f'P\\{i\\}: \\{text\\}'\\)\n    print\\('MEDIA:', \\[n for n in z\\.namelist\\(\\) if n\\.startswith\\('word/media/'\\)\\]\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

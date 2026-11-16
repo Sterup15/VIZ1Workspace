@@ -377,6 +377,8 @@ const sizeScale   = d3.scaleLinear().domain([0, maxTotal]).range([500, 20]);
 // 5. BIND + DRAW  (this session: nested join, or one path per series)
 ```
 
+> In a React project ([Session 9 §6](session09-visualization-architecture.md)) steps 1–4 stay exactly like this, because D3 still does the data, scales and shapes. Only step 5 may move into JSX.
+
 **Debugging checklist** — when the chart comes out blank, `console.log` in this order: the rollup Map, then `stacks`, then `stacks[0][0]` and `stacks[0][0].data`. Almost every stacked-chart bug is either a `NaN` from a missing combination (fix with `?? 0`), or reading `d[0]` where you meant `d.data[0]`.
 
 ---
