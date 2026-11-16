@@ -4,7 +4,7 @@ The session that should have covered radial charts in D3 was cancelled, so this 
 
 **Sources**
 - Book: Munzner, *Visualization Analysis & Design* — **§7.6.3 Radial Layouts**. This builds on the channel rankings in chapter 5 and the angle channel in §10.4.2, both summarised in [Session 6](session06-effective-communication.md).
-- [How to build a Radial Bar Chart with D3 JS and React JS](https://dev.to/simbamkenya/how-to-build-a-radial-bar-chart-with-d3-js-and-react-js-3cil) (DEV Community).
+- [How to build a Radial Bar Chart with D3 JS and React JS](https://dev.to/simbamkenya/how-to-build-a-radial-bar-chart-with-d3-js-and-react-js-3cil) (DEV Community). It uses React; how D3 and React fit together is covered in [Session 9](session09-visualization-architecture.md).
 - [D3 Graph Gallery](https://d3-graph-gallery.com/index.html), especially the [circular barplot](https://d3-graph-gallery.com/circular_barplot.html) and its [labels example](https://d3-graph-gallery.com/graph/circular_barplot_label.html).
 - [Recapping radials](https://www.storytellingwithdata.com/blog/2019/7/15/recapping-radials) (*storytelling with data*) — over 50 radial charts, with a critique.
 - Slides: *VIZ1 (7) – Visualization Workshop*. Brief: `Handin3.docx`.
@@ -296,7 +296,7 @@ Use these when segments are too small for text: place the label at `arc.centroid
 Nothing new compared to [Session 4](session04-interactivity.md): arcs are just `<path>` elements, so `.on('click', (event, d) => update(...))` works as usual. And `d.data` gives the original row when the data came through `d3.pie()`.
 
 Common interactions (Hand-in 3's examples):
-- **Click** an arc to reveal details or members (a details panel).
+- **Click** an arc to reveal details or members (a details panel). This is the **list–detail** form of focus + context: the circle is the context, the panel is the focus ([Session 8 §6.2](session08-explanatory-approach.md)).
 - **Hover** to highlight. A cheap effect is to redraw the hovered arc with a slightly bigger `outerRadius`.
 - **Filter** by an attribute, then fade the non-matching segments (figure–ground from Session 6).
 

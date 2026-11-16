@@ -34,6 +34,8 @@ Interaction is a design decision, not a default. Ask:
   - *Semantic* — showing different/more detail at closer zoom, not just bigger marks
 - **Aggregation** — changing the level at which data is grouped
 
+> Filtering and aggregation are Munzner's *reduction* choices, and their trade-offs are in [Session 8 §6](session08-explanatory-approach.md). Note also that a **hover-only** tooltip is unreachable for keyboard and screen-reader users, so offer the same details another way (Session 8 §8.3).
+
 ---
 
 ## The Model-View-Update pattern
@@ -67,6 +69,8 @@ view(state);
 - You can also pass `model`, `dom`, `viz` around as individual variables.
 - The `update` method ensures all functions work on the **same state**: it merges a patch into the model and re-runs the view.
 - Note the use of `state.model` rather than `this.model` — so the method keeps working when it is destructured or passed as a callback.
+
+> React has this pattern built in: the model is `useState`, `update` is the setter, and the view is the component function, which React re-runs automatically. See [Session 9 §2](session09-visualization-architecture.md).
 
 ### Code structure
 
@@ -208,6 +212,8 @@ Note that `.remove()` comes *after* the transition, so the element is only delet
 - In JavaScript, `{country: 'DK', age: 37} != {country: 'DK', age: 37}` — objects have no `equals()` method, so identity comparison fails.
 - Without a key function, D3 matches old and new data **by array index**, which makes **no sense** when the data is filtered or reordered: the "same" circle would suddenly represent a different country.
 - Adding a key function tells D3 how to identify a datum, so enter/update/exit sets are computed correctly.
+
+> React's `key` prop on list elements is the same idea ([Session 9 §5](session09-visualization-architecture.md)).
 
 ---
 

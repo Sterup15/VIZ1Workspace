@@ -274,7 +274,7 @@ Equal HSL lightness does **not** look equally bright: six colours with identical
 
 Three points that follow:
 
-- **Text needs luminance contrast** — **10:1** is good, **3:1** the minimum (Ware). Hue contrast alone gives no edges.
+- **Text needs luminance contrast** — **10:1** is good, **3:1** the minimum (Ware). Hue contrast alone gives no edges. The web accessibility guidelines (WCAG) are stricter for normal text, at **4.5:1**, and also ask **3:1** for graphics like bars and bands, which pastel fills often fail — see [Session 8 §8.2 and §10](session08-explanatory-approach.md).
 - **Mark size decides saturation:** small marks (points, lines) need **bright, saturated** colours; large areas (backgrounds, map regions, streamgraph bands) need **pastels**.
 - **Hue has no inherent order.** People always put grey between black and white, and pink between red and white, but nobody agrees on an order for red, blue, green and yellow. Conventions like traffic lights or the rainbow are *learned*, not perceived.
 
@@ -419,7 +419,7 @@ The two vocabularies describe the same thing:
 
 ## 12. Worked example: analysing a real chart
 
-Running the analysis on your own **HandIn02 streamgraph** ([main.js](../HandIn02/js/main.js)) — the same steps Exercise 6.1 asks for.
+Running the analysis on your own **HandIn02 streamgraph** ([main.js](../../../Rasmus/HandIn02/js/main.js)) — the same steps Exercise 6.1 asks for.
 
 **Marks**
 - **Areas** — one `<path>` per love-song category, made with `d3.area()`.

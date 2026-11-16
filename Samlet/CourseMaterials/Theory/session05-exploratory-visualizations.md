@@ -245,6 +245,8 @@ A dataset can also be transformed into a **different dataset type** — e.g. a t
 
 ## 5. Exploratory vs. expository visualization
 
+> The expository (explanatory) side gets its own session — the process, visual hierarchy and storytelling are in [Session 8](session08-explanatory-approach.md).
+
 | | **Exploratory** | **Expository** |
 |---|---|---|
 | Shape | Open-ended | Closed-ended |

@@ -55,6 +55,8 @@ Grouping alone doesn't give you something to draw — it gives you *piles of row
 
 ## 2. Aggregating
 
+> In Munzner's terms (ch. 13), grouping and aggregating is **item aggregation**, one of the *reduction* choices. Its risk is that a summary can hide the interesting signal — see [Session 8 §6.1](session08-explanatory-approach.md).
+
 ### 2a. The manual way (`d3.group` + `Array.from`)
 
 This is what we did in session 2: group first, then map each `[key, rows]` entry into an object with the numbers you want.
@@ -374,6 +376,8 @@ const sizeScale   = d3.scaleLinear().domain([0, maxTotal]).range([500, 20]);
 
 // 5. BIND + DRAW  (this session: nested join, or one path per series)
 ```
+
+> In a React project ([Session 9 §6](session09-visualization-architecture.md)) steps 1–4 stay exactly like this, because D3 still does the data, scales and shapes. Only step 5 may move into JSX.
 
 **Debugging checklist** — when the chart comes out blank, `console.log` in this order: the rollup Map, then `stacks`, then `stacks[0][0]` and `stacks[0][0].data`. Almost every stacked-chart bug is either a `NaN` from a missing combination (fix with `?? 0`), or reading `d[0]` where you meant `d.data[0]`.
 
