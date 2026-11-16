@@ -1,4 +1,12 @@
-import { COLOURS, GROUP_COLOURS, GARMENTS, LAYOUT, scoreRadius, scoreText, modeText, emphasizedBands } from "./model.js";
+import { COLOURS, GARMENTS, LAYOUT, scoreRadius, scoreText, modeText, filteredBands, colourMarks } from "./model.js";
+
+const colourFill = colour => colour === "mixed" ? "url(#mixed-pattern)"
+  : colour === "patterned" ? "url(#clothing-pattern)" : COLOURS[colour];
+
+function animate(selection, duration) {
+  selection.interrupt("chart");
+  return duration ? selection.transition("chart").duration(duration) : selection;
+}
 
 function setSwatch(selection, colour) {
   selection.attr("class", `swatch${colour === null ? " swatch-missing" : colour === "patterned" ? " swatch-patterned" : ""}`)
@@ -7,61 +15,47 @@ function setSwatch(selection, colour) {
 }
 
 export function createDOM(d3, model, actions) {
-  for (const group of model.groups) {
-    if (!Object.hasOwn(GROUP_COLOURS, group.size)) throw new Error(`Unsupported band size ${group.size}; update the group colour key.`);
-  }
   const svg = d3.select("#viz").append("svg")
-    .attr("viewBox", `0 0 ${LAYOUT.width} ${LAYOUT.width}`)
+    .attr("viewBox", `0 100 ${LAYOUT.width} ${LAYOUT.width - 200}`)
     .attr("role", "group").attr("aria-labelledby", "svg-title svg-description");
-  svg.append("title").attr("id", "svg-title").text("Band size and recorded clothing-colour uniformity");
+  svg.append("title").attr("id", "svg-title").text("Recorded clothing colours and matching pairs");
   svg.append("desc").attr("id", "svg-description");
+  const pattern = svg.append("defs").append("pattern").attr("id", "clothing-pattern")
+    .attr("patternUnits", "userSpaceOnUse").attr("width", 8).attr("height", 8);
+  pattern.append("rect").attr("width", 8).attr("height", 8).attr("fill", "#fffefb");
+  pattern.append("path").attr("d", "M0,0H4V4H0Z M4,4H8V8H4Z").attr("fill", "#617f73");
+  const mixed = svg.select("defs").append("pattern").attr("id", "mixed-pattern")
+    .attr("patternUnits", "userSpaceOnUse").attr("width", 8).attr("height", 8).attr("patternTransform", "rotate(45)");
+  mixed.append("rect").attr("width", 8).attr("height", 8).attr("fill", "#e7dbea");
+  mixed.append("rect").attr("width", 4).attr("height", 8).attr("fill", "#786780");
   const chart = svg.append("g").attr("transform", `translate(${LAYOUT.centre},${LAYOUT.centre})`);
   const guideArc = d3.arc().startAngle(LAYOUT.start).endAngle(LAYOUT.end);
+  chart.append("path").attr("class", "score-field")
+    .attr("d", guideArc({ innerRadius: LAYOUT.inner, outerRadius: LAYOUT.outer }));
+  chart.append("circle").attr("class", "centre-disc").attr("r", LAYOUT.arcInner - 14);
   const ticks = [0, 0.5, 1];
   chart.append("g").selectAll("path").data(ticks).join("path").attr("class", "score-guide")
+    .classed("is-outer", value => value === 1).classed("is-inner", value => value === 0)
     .attr("d", value => guideArc({ innerRadius: scoreRadius(value), outerRadius: scoreRadius(value) }));
-  const axis = chart.append("g").attr("aria-hidden", "true");
-  axis.append("line").attr("class", "score-axis").attr("x1", 0).attr("x2", 0)
-    .attr("y1", -LAYOUT.inner).attr("y2", -LAYOUT.outer);
-  ticks.forEach(value => {
-    axis.append("line").attr("class", "score-axis").attr("x1", -5).attr("x2", 7)
-      .attr("y1", -scoreRadius(value)).attr("y2", -scoreRadius(value));
-    axis.append("text").attr("class", "scale-label").attr("x", value === 0 ? -24 : 0)
-      .attr("y", -scoreRadius(value) + (value === 0 ? 16 : 28))
-      .attr("text-anchor", "middle").text(`${value * 100}%`);
-  });
-  chart.append("text").attr("class", "centre-title").attr("y", -15).text(`${model.bands.length} bands`);
+  chart.append("text").attr("id", "band-caption").attr("class", "centre-title").attr("y", -15);
   chart.append("text").attr("id", "garment-caption").attr("class", "centre-note").attr("y", 22);
   chart.append("text").attr("id", "selection-caption").attr("class", "centre-note selection-caption").attr("y", 57);
-  const groupArc = d3.arc().innerRadius(LAYOUT.arcInner).outerRadius(LAYOUT.arcOuter);
-  const arcs = chart.append("g").selectAll("path").data(model.groups, group => group.size).join("path")
-    .attr("class", "group-arc").attr("d", groupArc).attr("fill", group => GROUP_COLOURS[group.size])
-    .attr("role", "button").attr("tabindex", 0)
-    .attr("aria-label", group => `Emphasise ${group.size}-member bands, ${group.count} bands in the full dataset`)
-    .on("click", (_, group) => actions.focusGroup(group.size))
-    .on("keydown", (event, group) => {
-      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); actions.focusGroup(group.size); }
-    });
-  drawGroupLabels(d3, chart, model.groups);
+  const colourFlow = chart.append("g").attr("aria-hidden", "true").attr("pointer-events", "none");
+  const arcs = chart.append("g");
+  const labels = chart.append("g").attr("aria-hidden", "true");
   const marks = chart.append("g").attr("class", "band-marks");
+  const scaleLabels = chart.append("g").attr("aria-hidden", "true");
   const dom = {
-    svg, chart, arcs, marks, d3,
+    svg, chart, colourFlow, arcs, labels, marks, scaleLabels, d3,
     garment: d3.select("#garment"), band: d3.select("#band-select"),
     status: d3.select("#chart-status"),
     tooltip: d3.select("#tooltip"), announcement: d3.select("#announcement")
   };
   dom.band.selectAll("option").remove();
-  dom.groups = d3.select("#group-controls").selectAll("button")
-    .data([{ size: "all", count: model.bands.length }, ...model.groups], group => group.size)
-    .join("button").attr("type", "button").attr("class", "group-key")
-    .attr("data-size", group => group.size)
-    .attr("aria-label", group => group.size === "all" ? "Show all group colours"
-      : `Emphasise ${group.size}-member bands, ${group.count} bands`)
-    .on("click", (_, group) => actions.focusGroup(group.size));
-  dom.groups.filter(group => group.size !== "all").append("span").attr("class", "group-swatch")
-    .style("background-color", group => GROUP_COLOURS[group.size]).attr("aria-hidden", "true");
-  dom.groups.append("span").text(group => group.size === "all" ? "All"
-    : `${group.size} members: ${group.count}`);
+  dom.allColours = d3.select("#all-colours").property("disabled", false)
+    .on("click", () => actions.update({ colourFocus: "all" }));
+  dom.slider = d3.select("#colour-slider")
+    .on("input", event => actions.update({ colourPosition: Number(event.target.value) }));
   dom.garment.on("change", event => actions.update({ activeGarment: event.target.value }));
   dom.band.on("change", event => actions.update({ selectedBandId: event.target.value || null }));
   d3.select("#clear-selection").on("click", () => actions.update({ selectedBandId: null }));
@@ -70,94 +64,188 @@ export function createDOM(d3, model, actions) {
   return dom;
 }
 
-function drawGroupLabels(d3, chart, groups) {
+function drawColours(dom, groups, actions, duration) {
+  const { d3 } = dom;
+  const arc = d3.arc().innerRadius(LAYOUT.arcInner).outerRadius(LAYOUT.arcOuter);
+  const anchors = groups.filter(group => group.colour !== "patterned" && group.colour !== "mixed").map(group => ({
+    angle: (group.startAngle + group.endAngle) / 2, colour: COLOURS[group.colour]
+  }));
+  const stops = anchors.length ? [
+    { ...anchors.at(-1), angle: anchors.at(-1).angle - 2 * Math.PI },
+    ...anchors,
+    { ...anchors[0], angle: anchors[0].angle + 2 * Math.PI }
+  ] : [];
+  const flow = d3.scaleLinear().domain(stops.map(stop => stop.angle))
+    .range(stops.map(stop => stop.colour)).interpolate(d3.interpolateRgb.gamma(2.2));
+  const steps = 720;
+  const flowPaths = dom.colourFlow.selectAll("path").data(anchors.length ? d3.range(steps) : []).join("path")
+    .attr("class", "colour-flow")
+    .attr("d", index => arc({
+      startAngle: index * 2 * Math.PI / steps,
+      endAngle: Math.min(2 * Math.PI, (index + 1) * 2 * Math.PI / steps + 0.0005)
+    }));
+  animate(flowPaths, duration).attr("fill", index => flow((index + 0.5) * 2 * Math.PI / steps));
+  const gradientStops = anchors.length ? d3.range(181)
+    .map(index => `${flow(index / 180 * 2 * Math.PI)} ${index / 180 * 100}%`) : [];
+  d3.select("#colour-gradient").style("background", gradientStops.length
+    ? `linear-gradient(to bottom, ${gradientStops.join(", ")})` : null)
+    .selectAll(".ramp-pattern").data(groups.filter(group => group.colour === "patterned" || group.colour === "mixed")).join("span")
+    .attr("class", group => `ramp-pattern${group.colour === "mixed" ? " ramp-mixed" : ""}`)
+    .style("top", group => `${group.startAngle / (2 * Math.PI) * 100}%`)
+    .style("height", group => `${(group.endAngle - group.startAngle) / (2 * Math.PI) * 100}%`);
+  d3.select("#ramp-start").text(groups[0]?.colour || "No recorded colours");
+  d3.select("#ramp-end").text(groups.at(-1)?.colour || "");
+  dom.arcs.selectAll("path").data(groups, group => group.colour).join("path")
+    .attr("class", "colour-arc").attr("d", arc).attr("fill", group => colourFill(group.colour))
+    .attr("fill-opacity", group => group.colour === "patterned" || group.colour === "mixed" ? 1 : 0)
+    .attr("data-colour", group => group.colour).attr("role", "button").attr("tabindex", 0)
+    .attr("aria-label", group => `Filter ${group.count} bands in the ${group.colour} most-common-colour group`)
+    .on("click", (_, group) => actions.filterColour(group.colour))
+    .on("keydown", (event, group) => {
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); actions.filterColour(group.colour); }
+    });
   const labels = groups.map(group => {
-    const angle = (group.startAngle + group.endAngle) / 2;
-    const anchor = d3.pointRadial(angle, 403);
+    const anchor = d3.pointRadial((group.startAngle + group.endAngle) / 2, 410);
     return { ...group, anchor, side: anchor[0] < 0 ? -1 : 1, y: anchor[1] };
   });
   for (const side of [-1, 1]) {
-    let previous = -430;
-    for (const label of labels.filter(value => value.side === side).sort((a, b) => a.y - b.y)) {
-      label.y = Math.max(label.y, previous + 64);
-      previous = label.y;
+    const items = labels.filter(label => label.side === side).sort((a, b) => a.y - b.y);
+    items.forEach((label, index) => { label.y = Math.max(label.y, index ? items[index - 1].y + 27 : -450); });
+    for (let index = items.length - 1; index >= 0; index--) {
+      items[index].y = Math.min(items[index].y, index === items.length - 1 ? 450 : items[index + 1].y - 27);
     }
   }
-  const items = chart.append("g").attr("aria-hidden", "true").selectAll("g").data(labels).join("g");
-  items.append("path").attr("class", "group-leader")
-    .attr("d", label => `M${label.anchor} L${label.side * 348},${label.y} L${label.side * 362},${label.y}`);
-  items.append("text").attr("class", "group-label").attr("x", label => label.side * 370)
-    .attr("y", label => label.y - 5).attr("text-anchor", label => label.side < 0 ? "end" : "start")
-    .text(label => `${label.size} members`);
-  items.append("text").attr("class", "group-count").attr("x", label => label.side * 370)
-    .attr("y", label => label.y + 20).attr("text-anchor", label => label.side < 0 ? "end" : "start")
-    .text(label => `${label.count} ${label.count === 1 ? "band" : "bands"}`);
+  dom.labels.selectAll("path").data(labels, label => label.colour).join("path")
+    .attr("class", "colour-leader").attr("d", label => `M${label.anchor} L${label.side * 430},${label.y} H${label.side * 440}`);
+  dom.labels.selectAll("text").data(labels, label => label.colour).join("text")
+    .attr("class", "colour-label").attr("dy", ".35em").attr("x", label => label.side * 447)
+    .attr("y", label => label.y).attr("text-anchor", label => label.side < 0 ? "end" : "start")
+    .text(label => label.colour);
 }
 
 export function render(dom, model, state, actions) {
   const { d3 } = dom;
-  const bands = model.bands;
-  const emphasized = emphasizedBands(model, state);
+  const duration = dom.rendered && !window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 450 : 0;
+  dom.rendered = true;
+  const bands = filteredBands(model, state);
   const garment = state.activeGarment;
+  const plotted = colourMarks(model, state);
+  const groups = model.colourLayouts[garment].groups;
   const known = model.bands.reduce((sum, band) => sum + band.summaries[garment].known, 0);
-  dom.status.classed("visually-hidden", true).text(`${emphasized.length} of ${bands.length} bands emphasised; all remain in the overview. ${GARMENTS[garment].label}: ${known} known colours across ${model.members.length} member records${known < model.members.length ? ` (${model.members.length - known} missing)` : ""}.`);
+  dom.status.classed("visually-hidden", true).text(`${bands.length} of ${model.bands.length} bands; ${plotted.length} pins plotted. ${GARMENTS[garment].label}: ${known} known colours across ${model.members.length} member records${known < model.members.length ? ` (${model.members.length - known} missing)` : ""}.`);
+  d3.select("#filter-status").text(`${state.colourFocus === "all" ? "All colours" : state.colourFocus}: ${bands.length} of ${model.bands.length} bands`);
+  d3.select("#band-caption").text(`${bands.length} bands`);
   d3.select("#garment-caption").text(`Recorded ${GARMENTS[garment].label.toLowerCase()}`);
   d3.select("#selection-caption").text(state.selectedBandId || "Select a band to explore");
-  dom.svg.select("#svg-description").text(`Full circle: ${bands.length} bands, grouped clockwise by member count from the top. Arc width represents band count; colour identifies the labelled size group. Radial position represents matching pairs, from zero percent on the inner guide to one hundred percent on the outer guide. Select a point or use the band selector to see its members. Current clothing: ${GARMENTS[garment].label}.`);
+  dom.svg.select("#svg-description").text(`One pin per band, grouped by most common clothing colour. Ties belong to the mixed sector. Arc width counts bands. Radial position shows the overall matching-pair score for ${GARMENTS[garment].label}, from zero on the inner guide to one hundred percent on the outer guide. ${bands.length} bands in this filter. Select a pin for colours and percentages in the right-hand legend.`);
   dom.garment.property("value", garment);
   dom.band.selectAll("option").data([{ id: "", name: "Choose a band..." }, ...bands], band => band.id)
     .join("option").attr("value", band => band.id).text(band => band.name);
   dom.band.property("value", state.selectedBandId || "");
-  dom.arcs.classed("is-emphasized", group => state.sizeFocus === group.size)
-    .attr("aria-pressed", group => String(state.sizeFocus === group.size));
-  dom.groups.attr("aria-pressed", group => String(state.sizeFocus === group.size));
+  if (dom.drawnGarment !== garment) {
+    drawColours(dom, groups, actions, duration);
+    drawScaleLabels(dom, model.colourLayouts[garment].marks.filter(band => band.summaries[garment].score !== null), garment);
+    dom.drawnGarment = garment;
+  }
+  dom.arcs.selectAll("path").classed("is-filtered", group => state.colourFocus === group.colour)
+    .attr("aria-pressed", group => String(state.colourFocus === group.colour));
+  dom.allColours.attr("aria-pressed", String(state.colourFocus === "all"));
+  dom.slider.property("disabled", !groups.length).property("value", state.colourPosition ?? 0)
+    .attr("aria-valuetext", state.colourFocus === "all" ? "All colours; move the pin to filter"
+      : `${state.colourFocus}, ${groups.find(group => group.colour === state.colourFocus).count} bands`)
+    .on("keydown", event => {
+      const current = groups.findIndex(group => group.colour === state.colourFocus);
+      let index;
+      if (event.key === "Home") index = 0;
+      else if (event.key === "End") index = groups.length - 1;
+      else if (event.key === "ArrowDown" || event.key === "ArrowRight") index = current + 1;
+      else if (event.key === "ArrowUp" || event.key === "ArrowLeft") index = current < 0 ? groups.length - 1 : current - 1;
+      else return;
+      event.preventDefault();
+      actions.update({ colourFocus: groups[Math.max(0, Math.min(groups.length - 1, index))].colour });
+    });
 
-  const marks = dom.marks.selectAll(".band-mark").data(
-    bands.filter(band => band.summaries[garment].score !== null), band => band.id
-  ).join(enter => {
-    const item = enter.append("g").attr("class", "band-mark").attr("role", "button").attr("tabindex", 0);
-    item.append("line").attr("class", "band-stem");
-    item.append("circle").attr("class", "band-halo").attr("r", 8);
+  dom.marks.selectAll(".band-exit").interrupt("chart").remove();
+  const marks = dom.marks.selectAll(".band-mark").data(plotted, band => band.key).join(enter => {
+    const item = enter.append("g").attr("class", "band-mark").attr("role", "button").attr("tabindex", 0).style("opacity", 0);
+    item.append("line").attr("class", "band-stem").attr("aria-hidden", "true");
+    item.append("circle").attr("class", "band-halo").attr("r", 10);
     item.append("circle").attr("class", "band-point").attr("r", 5);
-    item.append("circle").attr("class", "band-hit").attr("r", 9);
+    item.append("circle").attr("class", "band-hit").attr("r", 12);
+    positionMarks(dom, item, () => LAYOUT.inner, 0);
     return item;
-  }).attr("data-band", band => band.id)
-    .classed("is-muted", band => state.sizeFocus !== "all" && state.sizeFocus !== band.totalMembers)
+  }, update => update, exit => {
+    exit.classed("band-mark", false).classed("band-exit", true).attr("tabindex", null)
+      .attr("aria-hidden", "true").style("pointer-events", "none");
+    animate(exit, duration).style("opacity", 0).remove();
+  }).attr("data-band", band => band.id).attr("data-colour", band => band.colour)
     .classed("is-selected", band => band.id === state.selectedBandId)
     .attr("aria-pressed", band => String(band.id === state.selectedBandId))
     .attr("aria-label", band => {
       const s = band.summaries[garment];
-      return `${band.name}, ${band.totalMembers} members. Matching pairs ${scoreText(s)}: ${s.matchingPairs} out of ${s.totalPairs}. ${s.known} of ${band.totalMembers} colours known. Select for member details.`;
+      return `${band.name}, ${band.colour} sector, ${band.totalMembers} members. Overall matching pairs ${scoreText(s)}: ${s.matchingPairs} out of ${s.totalPairs}. ${s.known} of ${band.totalMembers} colours known. Select for member details.`;
     })
-    .on("click", (_, band) => actions.update({ selectedBandId: band.id }))
+    .on("click", (event, band) => {
+      actions.update({ selectedBandId: band.id });
+      actions.showTooltip(event.currentTarget, band);
+    })
     .on("keydown", (event, band) => {
       if (event.key === "Enter" || event.key === " ") { event.preventDefault(); actions.update({ selectedBandId: band.id }); }
       if (event.key === "Escape") actions.hideTooltip();
     })
     .on("pointerenter focus", (event, band) => actions.showTooltip(event.currentTarget, band))
     .on("pointerleave blur", actions.scheduleHideTooltip);
-  marks.select(".band-stem")
-    .attr("x1", band => d3.pointRadial(band.angle, LAYOUT.inner)[0])
-    .attr("y1", band => d3.pointRadial(band.angle, LAYOUT.inner)[1])
-    .attr("x2", band => d3.pointRadial(band.angle, scoreRadius(band.summaries[garment].score))[0])
-    .attr("y2", band => d3.pointRadial(band.angle, scoreRadius(band.summaries[garment].score))[1]);
-  for (const selector of [".band-point", ".band-halo", ".band-hit"]) {
-    marks.select(selector)
-      .attr("cx", band => d3.pointRadial(band.angle, scoreRadius(band.summaries[garment].score))[0])
-      .attr("cy", band => d3.pointRadial(band.angle, scoreRadius(band.summaries[garment].score))[1]);
-  }
-  marks.select(".band-point").attr("fill", band => GROUP_COLOURS[band.totalMembers]);
+  animate(marks, duration).style("opacity", 1);
+  const points = positionMarks(dom, marks, band => scoreRadius(band.summaries[garment].score), duration);
+  marks.select(".band-point").attr("fill", band => colourFill(band.colour));
+  points.attr("r", band => band.id === state.selectedBandId ? 8 : 6.5);
   const unavailable = bands.filter(band => band.summaries[garment].score === null);
   d3.select("#unavailable").property("hidden", !unavailable.length)
-    .text(unavailable.length ? `Not plotted: ${unavailable.map(band => band.name).join(", ")}. Fewer than two known colours; use the band selector to inspect their records.` : "");
+    .text(unavailable.length ? `Not plotted: ${unavailable.map(band => band.name).join(", ")}. Fewer than two known colours; use the band selector for their records.` : "");
   renderDetails(d3, model.byId.get(state.selectedBandId), garment);
 }
 
+function positionMarks(dom, marks, radius, duration) {
+  const point = band => dom.d3.pointRadial(band.angle, radius(band));
+  animate(marks.select(".band-stem"), duration)
+    .attr("x1", band => dom.d3.pointRadial(band.angle, LAYOUT.arcOuter)[0])
+    .attr("y1", band => dom.d3.pointRadial(band.angle, LAYOUT.arcOuter)[1])
+    .attr("x2", band => point(band)[0]).attr("y2", band => point(band)[1]);
+  let points;
+  for (const selector of [".band-point", ".band-halo", ".band-hit"]) {
+    const target = animate(marks.select(selector), duration).attr("cx", band => point(band)[0]).attr("cy", band => point(band)[1]);
+    if (selector === ".band-point") points = target;
+  }
+  return points;
+}
+
+function drawScaleLabels(dom, bands, garment) {
+  const { d3 } = dom;
+  const points = bands.map(band => d3.pointRadial(band.angle, scoreRadius(band.summaries[garment].score)));
+  const labels = [0, .5, 1].map(value => {
+    const width = value === 0 ? 42 : value === .5 ? 56 : 64;
+    const point = d3.range(0, 360, 3).map(degrees => d3.pointRadial(degrees * Math.PI / 180, scoreRadius(value)))
+      .find(([x, y]) => Math.hypot(Math.max(0, Math.abs(x) - width / 2), Math.max(0, Math.abs(y) - 14)) > LAYOUT.arcOuter &&
+        points.every(([px, py]) => Math.abs(px - x) > width / 2 + 11 || Math.abs(py - y) > 25));
+    if (!point) throw new Error("Cannot place a score label without covering a band.");
+    return { value, width, x: point[0], y: point[1] };
+  });
+  const items = dom.scaleLabels.selectAll("g").data(labels, label => label.value).join(enter => {
+    const item = enter.append("g");
+    item.append("rect").attr("class", "scale-backplate").attr("y", -14).attr("height", 28).attr("rx", 8);
+    item.append("text").attr("class", "scale-label").attr("text-anchor", "middle").attr("dy", ".35em");
+    return item;
+  }).attr("transform", label => `translate(${label.x},${label.y})`);
+  items.select("rect").attr("x", label => -label.width / 2).attr("width", label => label.width);
+  items.select("text").text(label => `${label.value * 100}%`);
+}
+
 function renderDetails(d3, band, garment) {
+  d3.select("#detail-empty").property("hidden", Boolean(band));
   d3.select("#detail-panel").property("hidden", !band);
   d3.select("#detail-title").text(band ? band.name : "Look inside a band");
   if (!band) {
-    d3.select("#category-summary").property("open", false);
+    d3.select("#member-records").property("open", false);
     d3.select("#member-list").selectAll("li").remove();
     d3.select("#colour-counts").selectAll("li").remove();
     return;
@@ -181,7 +269,8 @@ function renderDetails(d3, band, garment) {
   });
   countItems.each(function (item) { setSwatch(d3.select(this).select(".swatch"), item.colour); });
   countItems.select(".count-name").text(item => item.colour ?? "Missing");
-  countItems.select(".count-value").text(item => item.count);
+  countItems.select(".count-value").text(item => item.colour === null ? `${item.count} missing`
+    : `${item.count} / ${summary.known} (${Number((item.count / summary.known * 100).toFixed(1))}%)`);
   const members = d3.select("#member-list").selectAll("li").data(band.members, member => member.id).join(enter => {
     const li = enter.append("li");
     li.append("span").attr("class", "member-name");

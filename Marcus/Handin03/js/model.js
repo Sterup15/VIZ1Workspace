@@ -1,10 +1,6 @@
 export const GARMENTS = Object.freeze({
-  bottom_color: { label: "Bottoms", singular: "bottom colour" },
-  shirt_color: { label: "Shirts", singular: "shirt colour" }
-});
-
-export const GROUP_COLOURS = Object.freeze({
-  3: "#0072b2", 4: "#c44b00", 5: "#00856a", 6: "#97449a", 7: "#946600"
+  bottom_color: { label: "Bottoms" },
+  shirt_color: { label: "Shirts" }
 });
 
 export const COLOURS = Object.freeze({
@@ -32,15 +28,21 @@ export const COLOURS = Object.freeze({
   patterned: "patterned"
 });
 
+export const COLOUR_ORDER = Object.freeze([
+  "red", "salmon", "rust orange", "orange", "brown", "tan",
+  "light yellow", "yellow", "green", "dark green",
+  "blue", "light blue", "navy blue", "purple", "pink", "dark red",
+  "white", "light gray", "gray", "dark gray", "black", "patterned"
+]);
+
 const BOTTOM_COLOURS = new Set([
   "black", "gray", "green", "light blue", "light gray",
   "navy blue", "red", "tan", "white", "yellow"
 ]);
 const REQUIRED_HEADERS = ["band", "name", "bottom_color", "shirt_color"];
 export const LAYOUT = Object.freeze({
-  width: 1000, centre: 500,
+  width: 1200, centre: 600,
   start: 0, end: 2 * Math.PI,
-  gap: 0,
   arcInner: 165, arcOuter: 185, inner: 210, outer: 390
 });
 const compare = (a, b) => a < b ? -1 : a > b ? 1 : 0;
@@ -100,7 +102,7 @@ export function normalizeMembers(rows) {
     const id = JSON.stringify([band, name]);
     if (seen.has(id)) throw new Error(`Duplicate member record: ${band} / ${name}.`);
     seen.add(id);
-    const member = { id, band, name, sourceRow, original: { ...row } };
+    const member = { id, band, name, sourceRow };
     for (const garment of Object.keys(GARMENTS)) {
       const value = row[garment]?.trim() || null;
       if (value !== null && (!Object.hasOwn(COLOURS, value) ||
@@ -127,28 +129,9 @@ export function summarizeBand(members, garment) {
   const modes = [...counts].filter(([, count]) => count === largestCount).map(([colour]) => colour).sort(compare);
   return {
     counts, known, missing: members.length - known,
-    matchingPairs, totalPairs, score: totalPairs ? matchingPairs / totalPairs : null, modes
+    matchingPairs, totalPairs, score: totalPairs ? matchingPairs / totalPairs : null, modes,
+    dominantColour: modes.length > 1 ? "mixed" : modes[0] ?? null
   };
-}
-
-export function allocateBandAngles(bands) {
-  if (!bands.length) throw new Error("Cannot allocate angles without bands.");
-  const sizes = [...new Set(bands.map(band => band.totalMembers))].sort((a, b) => a - b);
-  const available = LAYOUT.end - LAYOUT.start - LAYOUT.gap * (sizes.length - 1);
-  if (available <= 0) throw new Error("Too many size groups for the radial layout.");
-  let start = LAYOUT.start;
-  const placed = [];
-  const groups = sizes.map(size => {
-    const groupBands = bands.filter(band => band.totalMembers === size).sort((a, b) => compare(a.name, b.name));
-    const end = start + available * groupBands.length / bands.length;
-    const group = { size, count: groupBands.length, startAngle: start, endAngle: end };
-    groupBands.forEach((band, index) => placed.push({
-      ...band, angle: start + (index + 0.5) * (end - start) / groupBands.length
-    }));
-    start = end + LAYOUT.gap;
-    return group;
-  });
-  return { groups, bands: placed };
 }
 
 export function createModel(members) {
@@ -158,17 +141,41 @@ export function createModel(members) {
     if (!byBand.has(member.band)) byBand.set(member.band, []);
     byBand.get(member.band).push(member);
   }
-  const rawBands = [...byBand].map(([name, records]) => ({
+  const bands = [...byBand].map(([name, records]) => ({
     id: name, name,
     members: [...records].sort((a, b) => compare(a.name, b.name)),
     totalMembers: records.length,
     summaries: Object.fromEntries(Object.keys(GARMENTS).map(garment => [garment, summarizeBand(records, garment)]))
-  }));
-  const { groups, bands } = allocateBandAngles(rawBands);
+  })).sort((a, b) => a.totalMembers - b.totalMembers || compare(a.name, b.name));
   const categories = Object.fromEntries(Object.keys(GARMENTS).map(garment => [
-    garment, Object.keys(COLOURS).filter(colour => members.some(member => member[garment] === colour))
+    garment, [...COLOUR_ORDER, "mixed"].filter(colour => bands.some(band => band.summaries[garment].dominantColour === colour))
   ]));
-  return { members, groups, bands, byId: new Map(bands.map(band => [band.id, band])), categories };
+  const colourLayouts = Object.fromEntries(Object.keys(GARMENTS).map(garment => [
+    garment, allocateColourAngles(bands, garment, categories[garment])
+  ]));
+  return { members, bands, byId: new Map(bands.map(band => [band.id, band])), categories, colourLayouts };
+}
+
+function allocateColourAngles(bands, garment, categories) {
+  const groups = categories.map(colour => ({
+    colour,
+    bands: bands.filter(band => band.summaries[garment].dominantColour === colour)
+      .sort((a, b) => compare(a.name, b.name))
+  }));
+  const total = groups.reduce((sum, group) => sum + group.bands.length, 0);
+  let start = LAYOUT.start;
+  const marks = [];
+  for (const group of groups) {
+    group.count = group.bands.length;
+    group.startAngle = start;
+    group.endAngle = start + (LAYOUT.end - LAYOUT.start) * group.count / total;
+    group.bands.forEach((band, index) => marks.push({
+      ...band, colour: group.colour, key: band.id,
+      angle: start + (index + 0.5) * (group.endAngle - start) / group.count
+    }));
+    start = group.endAngle;
+  }
+  return { groups, marks };
 }
 
 export function scoreRadius(score) {
@@ -178,24 +185,48 @@ export function scoreRadius(score) {
 }
 
 export function initialState() {
-  return { activeGarment: "bottom_color", sizeFocus: "all", selectedBandId: null };
+  return { activeGarment: "bottom_color", colourFocus: "all", colourPosition: null, selectedBandId: null };
 }
 
-export function emphasizedBands(model, state) {
-  return model.bands.filter(band => state.sizeFocus === "all" || band.totalMembers === state.sizeFocus);
+export function colourAtPosition(model, garment, position) {
+  if (!Number.isFinite(position) || position < 0 || position > 1) throw new Error("Invalid colour-slider position.");
+  if (!Object.hasOwn(GARMENTS, garment)) throw new Error("Invalid garment selection.");
+  const groups = model.colourLayouts[garment].groups;
+  if (!groups.length) throw new Error("No recorded colours are available for the colour slider.");
+  return groups.find(group => position * 2 * Math.PI < group.endAngle) || groups.at(-1);
+}
+
+export function filteredBands(model, state) {
+  return model.bands.filter(band => state.colourFocus === "all" ||
+    band.summaries[state.activeGarment].dominantColour === state.colourFocus);
+}
+
+export function colourMarks(model, state) {
+  return model.colourLayouts[state.activeGarment].marks.filter(mark =>
+    (state.colourFocus === "all" || mark.colour === state.colourFocus) &&
+    mark.summaries[state.activeGarment].score !== null);
 }
 
 export function nextState(model, state, patch) {
   const next = { ...state, ...patch };
   if (!Object.hasOwn(GARMENTS, next.activeGarment)) throw new Error("Invalid garment selection.");
-  if (next.sizeFocus !== "all" && !model.groups.some(group => group.size === next.sizeFocus)) {
-    throw new Error("Invalid band-size focus.");
+  if (Object.hasOwn(patch, "colourPosition")) {
+    next.colourFocus = colourAtPosition(model, next.activeGarment, patch.colourPosition).colour;
+  }
+  if (next.colourFocus !== "all" && !model.categories[next.activeGarment].includes(next.colourFocus)) {
+    if (patch.activeGarment && !Object.hasOwn(patch, "colourFocus")) next.colourFocus = "all";
+    else throw new Error("Invalid clothing-colour filter.");
   }
   if (next.selectedBandId !== null && !model.byId.has(next.selectedBandId)) throw new Error("Unknown selected band.");
-  if (next.selectedBandId !== null && next.sizeFocus !== "all" &&
-      model.byId.get(next.selectedBandId).totalMembers !== next.sizeFocus) {
-    if (patch.selectedBandId) next.sizeFocus = model.byId.get(next.selectedBandId).totalMembers;
+  if (next.selectedBandId !== null && next.colourFocus !== "all" &&
+      model.byId.get(next.selectedBandId).summaries[next.activeGarment].dominantColour !== next.colourFocus) {
+    if (patch.selectedBandId) throw new Error("Selected band does not belong to the filtered colour group.");
     else next.selectedBandId = null;
+  }
+  if (next.colourFocus === "all") next.colourPosition = null;
+  else if (patch.activeGarment || Object.hasOwn(patch, "colourFocus") || next.colourPosition === null) {
+    const group = model.colourLayouts[next.activeGarment].groups.find(group => group.colour === next.colourFocus);
+    next.colourPosition = (group.startAngle + group.endAngle) / (4 * Math.PI);
   }
   return next;
 }

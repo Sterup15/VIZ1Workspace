@@ -1,8 +1,143 @@
 # Handin 3: implementation plan
 
+## Current revision: three columns and one pin per band
+
+The filter is on the left, the circle in the middle and the band legend on the
+right. The desktop chart and slider scale to the viewport height. Each band has
+one pin in its most-common-colour sector; ties go in a separate striped mixed
+sector. Filtering uses that same assignment, not any colour present in a band.
+Selecting a pin reveals its score, colour counts and percentages of known members
+in the right-hand legend. Member records are collapsed to keep the overview compact.
+Automated test files and runners were removed at the user's request; subsequent
+sections record historical designs and verification, not the current workflow.
+
+## Earlier refinement: motion, blending and direct scale labels
+
+The chart keeps its layout, matching-pair definition and linked colour filter.
+Garment changes now use interruptible 450ms transitions for dots and spokes;
+entering/exiting bands fade. Reduced-motion preferences bypass animation.
+Gamma-corrected RGB interpolation gives the colour ring and slider the same
+smooth blend. Static wheel geometry is cached per garment, and moving the pin
+within one category does not restart transitions or repeat announcements.
+
+The 0%, 50% and 100% badges sit directly on their score guides with contrasting
+backplates, outside the centre disc. Placement avoids the complete garment's
+dot positions and stays fixed while filtering. The old centre legend and
+redundant axis were removed. The reading guide and method disclosure are shorter.
+
+Cleanup removes the retired comparison page's CSS, scripts and tests, its unused
+size-sector allocator, and unused member copies/garment labels. Sorting remains
+by member count then band name; scoring, CSV validation, keyboard controls and
+member evidence are preserved.
+
+Validation: 54/54 current model/geometry tests and 26/26 browser tests passed.
+The reduced total removes retired wheel tests and obsolete size-geometry checks,
+not current behaviour coverage. Browser checks include intermediate/final
+animation positions, rapid interruptions, reduced motion, stable guide badges,
+same-category drag updates, colour continuity, errors and responsive collisions.
+
+### Course review and design constraints
+
+Reviewed the [course description](../../Samlet/CourseMaterials/it-viz1-1-0.pdf),
+all nine theory notes, text from all 224 slides across nine lecture decks, six
+exercise documents and the shared Handin2/Handin3 briefs. Both Handin3 wireframes
+were inspected; embedded lecture illustrations were not systematically reviewed.
+Reading from Munzner was limited to relevant excerpts in chapters 5, 6, 7, 10,
+11, 13 and 14, not the entire textbook.
+
+The [Handin3 brief](../../Samlet/CourseMaterials/Handin3.docx), Steps 1-6 and
+completion criteria, requires meaningful arcs, at least three deliberate
+encodings, a reading guide/annotations, meaningful interaction, structured code
+and reflection. Animation is optional here, not a reason to add decorative motion.
+The cleanup retains the question, proportional sectors, radial score positions,
+category hues/textures, direct annotations, filtering and member evidence.
+These support the course's What/Why/How, readable encoding and linked-exploration
+principles without retaining a second application or repeated explanations.
+The Word reflection still needs updating for this design before submission.
+
+## Earlier refinement: connecting spokes and clearer score structure
+
+The user selected connecting lines and stronger radial-chart graphics after
+reviewing another student's work as a reference. This implementation keeps our
+own chart-left/slider-right layout, flowing colour sectors, repeated band-colour
+points and matching-pair calculation. No reference implementation or assets were
+copied into this application, and there is no runtime dependency on another folder.
+
+Fine straight spokes now connect each dot to the outer edge of its own colour
+sector. A white score field, a quiet centre disc, a dashed 50% guide and a stronger
+100% boundary make the hierarchy clearer. Selected dots grow slightly and their
+spokes become darker/thicker. Positions and filter behaviour remain unchanged.
+Spokes express association, not another score: a 0% dot still has a connector
+between the colour ring and the inner score guide. The reading guide explains it.
+Validation: 75/75 model/geometry tests and 24/24 browser tests passed. New checks
+verify visible ring-to-dot connections for both garments, exact endpoint/radius
+mapping including zero scores, and stronger selection without changing positions.
+The desktop rendering was inspected; the existing responsive and slider checks
+also passed.
+
+## Earlier revision: one draggable colour-gradient bar
+
+The user approved the radial chart and replaced the right-hand count bars with
+one vertical gradient slider. The radial geometry, hue flow and dots are unchanged.
+The bar unwraps the same gradient clockwise from the top of the circle; dragging
+its pin selects the named colour sector at that angle and filters immediately.
+Its position is retained during dragging and band selection. Arc clicks and
+garment changes synchronise the pin to the selected sector's midpoint.
+Arrow keys step between categories; Home/End select the first/last category.
+All colours restores the overview. A visible count and accessible slider value
+identify the active colour; the gradient is not a frequency bar or a new metric.
+Patterned remains a texture; unavailable colours disable the native slider.
+
+Verification: 75/75 model/geometry tests and 22/22 browser checks passed.
+A browser-generated drag selected exactly 31 navy-blue bands for bottoms;
+Home and End selected red and black. Browser checks cover both garments, all
+colour-sector midpoints, empty/single-colour data, pin persistence, arc/pin
+synchronisation, keyboard/reset behaviour, error states and responsive layouts.
+The earlier verification records below apply to earlier UI revisions.
+
+## Earlier revision: flowing clothing colours and linked bars
+
+The current [page](index.html) supersedes the size-colour overview and the
+separate wheel experiment below. The user chose actual recorded clothing
+colours in hue order, one point per band-colour appearance, and clickable bars
+counting bands that contain each colour. The comparison page was removed.
+
+The inner ring blends between category hues without divider strokes; dots and
+bars retain the recorded category colours. Blended shades are not new data.
+Patterned remains a texture, and neutral colours follow the chromatic colours.
+This is categorical organisation, not a sequential rainbow or proof of cyclic data.
+
+Sectors are proportional to band-colour appearances, so multicolour bands repeat.
+Each repeated point keeps the band's overall garment matching-pair score.
+Filtering shows only the chosen colour's dots, preserving angular positions,
+sector geometry and full-dataset bar counts. The selector contains matching bands.
+All colours restores the view without changing garment or a compatible selection.
+Garment changes rebuild sectors, reset a filter absent from the new garment and
+clear incompatible selections. Unknown scores are not plotted as zero; known
+colours still contribute to count bars and member records remain inspectable.
+
+Theory: Session 4's model/view/update and linked selection/filtering; Session 5's
+open exploratory question; Session 6's categorical hues, redundant labels,
+outlines for pale marks and aligned bar lengths; Session 7's meaningful arcs,
+explicit non-cyclic-data caveat and radial-reading limitations. The circle's
+proportions describe appearances, not distinct bands. The bars provide the more
+accurate aligned frequency comparison that the circular overview cannot.
+
+The original brief and workshop material were reviewed. The Word reflection
+still describes an earlier design and needs revision before final submission.
+Validation on 16 November 2026: 72/72 Node model/geometry tests and 21/21
+current-page browser tests passed. Browser checks include intermediate gradient
+shades and smooth wraparound, exact bar counts, repeated band marks, real
+filtering, missing scores, error states, label collisions, widths from 390 to
+1440 CSS pixels and 200% CSS magnification. A browser-generated click filtered
+shirts to two purple bands; Enter restored all colours. Desktop rendering was
+visually inspected. These are implementation checks, not user testing.
+All sections below are historical, not descriptions of the current UI.
+
 ## Separate alternative: five comparison wheels
 
-**Added for comparison, not as a replacement.** Open [comparison.html](comparison.html) beside the unchanged [original plot](index.html). The original application files and the Word reflection were not changed for this alternative. Both pages read the same CSV and reuse the original parsing, grouping and matching-pair summaries. All work stays in Marcus/Handin03.
+**Retired alternative.** The comparison page and its support files have been removed.
+The following records its earlier design rationale, not the current application.
 
 ### What this version makes easier to see
 

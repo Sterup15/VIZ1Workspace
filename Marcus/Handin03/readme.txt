@@ -1,125 +1,81 @@
 THE BOYBAND BLUEPRINT - MATCHING OUTFITS?
 
-TWO DESIGNS TO COMPARE
-- index.html: the original full-circle point plot, kept unchanged.
-- comparison.html: the separate five-wheel alternative. Its navigation links
-  back to the original; open the two pages in separate tabs to compare.
-Both use the same boys.csv and matching-pair calculation. The alternative is
-not yet a replacement for the design described in the current Word reflection.
-
 RUN
-Open this folder in VS Code and use Live Server on index.html or comparison.html.
-Use an HTTP URL, not file://: the app fetches boys.csv and uses ES modules.
-No build, package install, account or network access beyond the local server is
-required. D3 7.9.0 and its ISC licence are included in js/vendor.
-Use a current Chrome, Edge, Firefox or Safari browser.
+Open this folder in VS Code and use Live Server on index.html.
+Use HTTP, not file://: the app fetches boys.csv and uses ES modules.
+No build or package installation is required. D3 7.9.0 is bundled locally
+with its ISC licence and provenance in js/vendor.
 
-ORIGINAL INTERACTIONS
-- Bottoms/Shirts changes the recorded clothing attribute.
-- A labelled group key or inner arc emphasises one band-size group. Other bands
-  remain visible in neutral grey; all arcs retain their original colours/widths.
-  Activate the same group again, or All, to restore all group colours.
-- Choose a band with the native selector, or click/keyboard-activate its point.
-- Hover/focus shows a tooltip; Escape dismisses it. Selection persists.
-- Selecting a muted band moves group focus to it. Focusing a different group
-  clears an incompatible selection and announces the change.
-- All preserves clothing and selection. Clear selection hides member details
-  without changing clothing or group focus, and restores focus to the selector.
-- On wide screens (1160px and above), the circle is on the left and selected-band
-  information is on the right. Narrow screens stack details below the chart.
-  The chart does not move when details open. Formula/limitations and the optional
-  category summary use native disclosures; essential reading help stays visible.
-- On narrow screens only the chart scrolls horizontally. The selector gives a
-  keyboard/touch alternative to small points.
+CURRENT DESIGN
+Question: Which clothing colours do bands share, and how closely do their
+outfits match?
 
-COMPARISON WHEELS
-- One wheel for each band size. Outer blue track = bottoms; inner orange = shirts.
-- Each band gets one aligned slot on both tracks. Within that slot, the filled
-  angular fraction is its matching-pair score. Unfilled means non-matching.
-- Centre values are arithmetic means of available band scores, with each band
-  equally weighted. They are not pooled member-pair percentages.
-- Sample sizes are explicit. Hatched slots mean unavailable, not zero.
-  Incomplete colours are flagged in the group notes and selected-band evidence.
-- Select a slot with pointer or Enter/Space, or use the native band selector.
-  Both garment scores, pair counts and member categories appear together.
-  Hover/focus previews scores; Escape dismisses; Clear restores selector focus.
-- Wheels and evidence are side by side when there is room and stack on narrow
-  screens. Compare proportions within slots, not raw lengths across wheels:
-  more bands produce narrower slots, and the outer track has a larger radius.
-- The original page and its model/view/style files were not changed to add this
-  alternative. Both use the existing validated parsing and band summaries.
+- Choose Bottoms or Shirts. Each band has one pin, grouped by its most common
+  colour. Ties belong to a separate striped mixed sector. Arc width counts bands.
+- Filtering selects these same most-common-colour groups, not every colour a
+  member happens to wear. It does not recalculate scores or move remaining pins.
+- Read dots against the directly labelled 0%, 50% and 100% score guides.
+  Spokes associate dots with colour sectors; their full length is not the score.
+- The ring and vertical slider share a gamma-corrected colour blend. Intermediate
+  shades are visual aids, not dataset categories. Patterned uses checks; mixed
+  uses stripes and is a derived tie group, not a recorded clothing colour.
+- Drag the pin to filter; arrow keys step between categories, Home/End select
+  endpoints. The exact pin position persists within a category without restarting
+  chart animation. All colours restores the overview. Arc clicks toggle a filter.
+- Garment changes preserve available filters and clear incompatible selections.
+  Band choices and the visible distinct-band count follow the filter.
+- Select a pin with pointer, Enter or Space, or use the band selector. The right
+  legend shows its pair score, matching colours, and each colour's percentage of
+  known members. Member names are available in a compact disclosure.
+  Hover/focus previews the name; Escape dismisses the tooltip.
+  Clear selection preserves garment/filter and returns focus to the selector.
+- Changes animate over 450ms and can be interrupted. Reduced-motion preferences
+  render immediately. Static colour geometry and score labels rebuild only on
+  garment changes, keeping slider interaction light and the scale stationary.
+- Desktop places the filter left, circle in the middle and legend right. The
+  chart and slider scale to viewport height. Narrow screens move the legend below.
 
-TEST
-1. Open tests/model.test.html through the same HTTP server.
-2. Open tests/ui.test.html through the same server for interaction/error tests.
-   Open tests/wheels-ui.test.html for the alternative's model and browser checks.
-3. Or, from the repository root with Node 22.7+ (verified with Node 25.5.0):
-   node Marcus/Handin03/tests/run.mjs
-   (Inside this folder: node tests/run.mjs)
-The Node runner covers both designs' model/geometry tests; UI tests need a browser.
-No test framework is required.
-Verified on 6 November 2026: 70 model tests (54 original + 16 wheel tests) passed.
-The original browser suite passed 27/27; the alternative browser page passed
-33/33 (16 wheel model tests + 17 UI tests). The earlier full-circle revision
-also passed a standalone-copy check; no new standalone-copy check is claimed
-for the comparison-wheel alternative. See handin3-plan.md for the scope.
+DATA AND LIMITATIONS
+234 member records in 55 bands, not necessarily 234 distinct people.
+Matching score = matching known-colour member pairs / all known-member pairs.
+Missing colours never match. Fewer than two known colours is unavailable,
+not zero: such bands remain in colour counts when a colour is known and can
+be inspected with the selector, but do not get a misleading zero-score dot.
+Black and navy blue remain distinct. Patterned matches category names, not
+necessarily actual patterns. Swatches are approximate named categories, not
+measured shades. Recorded looks do not establish intention or causation.
+
+The circle earns structure through proportional most-common-colour sectors and a
+deliberate hue order, not a claim that clothing data is cyclic. A straight
+common scale remains more accurate for numerical reading. The gradient bar is
+a colour filter, not a frequency chart.
+
+This is a visualization-only assignment. Test files and runners have been removed;
+iteration uses brief visual inspection rather than an automated test workflow.
 
 FILES
-index.html            Semantic UI and explicit startup error boundary.
-css/main.css          Layout, chart, legend, details, focus and responsive styles.
-js/model.js           Strict CSV validation, grouping, pair counts, modes,
-                      deterministic angles, group colours and state/focus rules.
-js/view.js            D3 SVG marks and keyed DOM updates.
-js/main.js            Loading, central state updates, controls and tooltips.
-comparison.html       Separate comparison-wheel page and reading support.
-css/comparison.css    Independent wheel-page layout and responsive styling.
-js/wheels-model.js    Equal-weight group means and within-band arc geometry.
-js/wheels.js          Five wheels, selection, previews and two-garment evidence.
-boys.csv              Original course-provided dataset, unchanged.
-js/vendor/            Pinned D3 distribution, provenance manifest and licence.
-tests/                Fixture, supplied-data, geometry and browser checks.
-Handin3.docx          Original brief, student plan and implementation reflection.
-handin3-plan.md       Detailed design specification and current implementation status.
+index.html          Current radial chart, colour slider, reading guide and errors.
+css/main.css        Responsive layout, focus, chart and member-evidence styles.
+js/model.js         Validated CSV, pair scores, colour counts/layout and state.
+js/view.js          D3 colour flow, sectors, points, slider and member evidence.
+js/main.js          Loading, interaction updates, announcements and tooltips.
+boys.csv            Unchanged course dataset.
+js/vendor/          Local D3 distribution, provenance and licence.
+handin3-plan.md     Current revision record followed by historical designs.
+Handin3.docx        Earlier reflection; not yet updated for this colour revision.
 
-DATA AND READING
-234 member records in 55 bands; repeated artists may appear in different entries.
-Uniformity = matching known-member pairs / all known-member pairs.
-Band size counts all records; missing colours are excluded only from pair counts.
-Fewer than two known colours means unavailable, never zero.
-Scores display as percentages of matching pairs, not matching members.
-Five strong overview colours identify labelled band-size groups; hue does not
-encode numerical order. Actual clothing colours appear only in member details,
-with names. Tied modes are listed in the optional category summary rather than
-arbitrarily choosing one. "Patterned" uses a checker; missing uses a slashed swatch.
-The contiguous 360-degree circle represents all 55 bands. Group widths equal
-360 * group band count / 55, with no angular padding or opening. Starting at the
-top, groups run clockwise from 3 to 7 members. Band size is not cyclic.
-Uniformity maps linearly from radius 210 to 390, with guides at 0%, 50% and 100%.
-Dots keep fixed sizes and angular positions. A radial guide appears only during
-inspection/selection, rather than adding 55 default stems.
-Overview colours exceed 4.3:1 contrast against the page; muted dots exceed 3.3:1.
-Some hues converge under colour-deficiency simulations: use group labels,
-spatial regions, focus controls and member evidence, not hue alone.
-The chart does not establish causation, exact colour distance or intentional styling.
-
-SOURCE / DEPENDENCY
-Data: the boyband CSV supplied with the VIZ1 assignment. No external enrichment.
-D3: https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js
-Licence: js/vendor/D3-LICENSE. Provenance: js/vendor/manifest.json.
-No other student's project or shared-folder asset is a runtime dependency.
-
-HAND-IN
-Choose the design before finalizing the reflection. Handin3.docx still describes
-the original, not the comparison-wheel alternative. If choosing the alternative,
-revise the reflection and include comparison.html, css/comparison.css,
-js/wheels.js, js/wheels-model.js, js/model.js, the vendor library/licence and CSV.
-For the original, submit index.html, css/, js/ (including the vendor licence), boys.csv,
-run instructions and the final reflection in the instructor's required format.
-Check itslearning for deadline, submission format and any extra requirements.
-Keep original Word backups locally; do not automatically upload backups or
-temporary test output. Workshop evidence and test files can accompany the
-submission if permitted. The app runs independently of the workshop/plan files.
-Real peer feedback and instructor-specific submission checks are still pending.
-Native browser zoom, screen-reader/user testing, other browser engines and visual
-Word pagination remain unverified. CSS 200% magnification is tested separately;
-it must not be described as native browser zoom.
+THEORY / HAND-IN
+Reviewed the course description, all nine theory notes, text from all 224 lecture
+slides, six exercise documents and both shared hand-in briefs. Embedded lecture
+illustrations were not systematically inspected. Textbook reading covered relevant
+excerpts on marks/channels, perception, colour, interaction and radial layouts,
+not the entire book.
+All edits remain inside Marcus/Handin03; shared course material is read-only.
+At least three encodings: sector angle for band counts, radial position for
+matching score, hue/texture for most-common-colour groups.
+The gradient slider supports filtering without changing those radial encodings.
+Handin3 requires meaningful arcs, deliberate encodings, a reading guide,
+interaction, structured code and reflection; animation is an optional refinement.
+Update the final reflection for this design before submission. No new peer
+feedback, native browser zoom, screen-reader testing or other-engine testing
+is claimed. Check itslearning for final submission requirements.
