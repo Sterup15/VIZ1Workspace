@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superficial Boyband Visualizer 3000</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <header>
+    <h1>Superficial Boyband Visualizer 3000</h1>
+    <p class="subtitle">How alike do boyband members look, and in which colour?</p>
+    <div class="guide">
+      <p><strong>How to read it:</strong> each dot is a band, in its <em>signature colour</em> &mdash; the colour most of its members wear (or have, for hair, eyes and skin). A line connects the dot to where that colour sits on the wheel.</p>
+      <p>The further a dot is from the wheel, the more alike the band: at the outer ring (100%) every member has the signature colour. <em>Overall outfit</em> is the average of the shirt, jacket and bottom scores.</p>
+      <p>White, grey and black have no hue, so they have their own white-to-black wheel. Tick <em>Colours</em>, <em>Greyscale</em> or both. With both, each gets half of the circle. Use the slider on the left to zoom in on part of the wheel.</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="colour-filter">
+      <h3>Colours</h3>
+      <p id="colour-range-text"></p>
+      <div id="colour-slider"></div>
+      <button id="reset-colours">Show the whole wheel</button>
+    </aside>
+
+    <section class="chart">
+      <div class="controls">
+        <label for="attribute">Attribute</label>
+        <select id="attribute">
+          <option value="overall">Overall outfit</option>
+          <option value="shirt">Shirt</option>
+          <option value="jacket">Jacket</option>
+          <option value="bottom">Bottom</option>
+          <option value="hair">Hair</option>
+          <option value="eyes">Eyes</option>
+          <option value="skin">Skin</option>
+        </select>
+        <label class="toggle">
+          <input type="checkbox" id="show-colours" checked>
+          Colours
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="show-greys">
+          Greyscale
+        </label>
+      </div>
+      <p id="hidden-note"></p>
+      <div id="viz"></div>
+    </section>
+  </main>
+
+  <section id="details" aria-live="polite"></section>
+
+  <footer class="sources">
+    <p>Data: boys.csv, the boyband dataset (234 member records, 55 bands). Signature colour = the most common recorded colour; ties go to the colour that is more common in the whole dataset. Uniformity = the share of all band members with the signature colour. An empty jacket colour means the member wears no jacket. The 8 shirts recorded as "patterned" have no colour and count as not matching.</p>
+  </footer>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="js/colors.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
