@@ -116,7 +116,7 @@ a {
 .legend ul {
   display: flex;
   justify-content: space-between;
-  margin: 30px 160px 30px 60px;
+  margin: 30px 0 30px 60px;
   padding-left: 0;
   list-style: none;
 }
@@ -125,12 +125,13 @@ a {
   align-items: center;
 }
 .legend ul .legend-color {
-  margin-right: 10px;
-  width: 50px;
-  height: 25px;
+  margin-right: 8px;
+  width: 25px;
+  height: 20px;
 }
 .legend ul .legend-label {
   margin-right: 10px;
+  white-space: nowrap;
 }
 @media screen and (max-width: 768px) {
   .legend ul {
@@ -138,6 +139,30 @@ a {
     margin-left: 0;
     margin-right: 0;
   }
+}
+
+.legend ul li.selected .legend-label {
+  font-weight: 700;
+}
+
+/* Stream graph */
+.axis-label {
+  font-size: 14px;
+}
+.grid line {
+  stroke: #C1B9BA;
+  stroke-dasharray: 3, 3;
+}
+.grid .domain {
+  display: none;
+}
+.tooltip-box {
+  fill: #FFFFFF;
+  stroke: #C1B9BA;
+  rx: 6;
+}
+.tooltip-text text {
+  font-size: 13px;
 }
 
 /* Sources */

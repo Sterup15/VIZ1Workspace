@@ -65,7 +65,7 @@ Users describe what they want in plain language; our job is to translate that in
 
 **Compare values:**
 - Bar chart – ordinal key + quantitative value
-- Radial bar chart – cyclic key + quantitative value
+- Radial bar chart – cyclic key + quantitative value (when radial is justified, and how to build it, is in [Session 7](session07-radial-visualizations.md))
 
 **Two discrete keys + quantitative value** (added in [Session 3](session03-manipulating-data.md)):
 - Stacked bar chart – compare, discover trends, lookup (harder)
@@ -124,6 +124,8 @@ const colorScale = d3.scaleLinear()
 - `d3.scaleSequential` — continuous colour scale for sequential data (e.g. grey → red). Better than abusing a linear scale for colour.
 - `d3.scaleDiverging` — continuous colour scale for diverging data (e.g. blue → grey → red).
 - `d3.scaleQuantile` / `d3.scaleQuantize` / `d3.scaleThreshold` — discrete colour scales via binning the data.
+
+> Which colours go *into* these scales is a perception question. Ordered data should vary in **luminance/saturation** rather than hue, and rainbow ramps shouldn't be used for ordered data — see [Session 6 §7–8](session06-effective-communication.md).
 
 **Types of scaling for ordinal / categorical data:**
 - `d3.scaleOrdinal` — manual 1-to-1 mapping of domain values to range values.

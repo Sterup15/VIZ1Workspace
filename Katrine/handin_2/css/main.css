@@ -112,6 +112,22 @@ a {
   }
 }
 
+/* Stream graph */
+#viz svg {
+  overflow: visible;
+}
+.x-axis .domain,
+.y-axis .domain {
+  stroke: #C1B9BA;
+}
+.axis-label {
+  font-size: 13px;
+  font-weight: 700;
+}
+.overlay {
+  cursor: crosshair;
+}
+
 /* Legend */
 .legend ul {
   display: flex;
@@ -123,6 +139,11 @@ a {
 .legend ul li {
   display: flex;
   align-items: center;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.legend ul li.inactive {
+  opacity: 0.3;
 }
 .legend ul .legend-color {
   margin-right: 10px;

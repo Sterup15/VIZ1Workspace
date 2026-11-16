@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Matching outfits? - Comparison wheels</title>
+  <meta name="description" content="Compare matching-pair scores for bottoms and shirts across five boyband-size groups.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/comparison.css">
+</head>
+<body>
+  <a class="skip-link" href="#band-select">Skip to band selection</a>
+  <main>
+    <nav aria-label="Design alternatives"><a href="index.html">Original radial plot</a><span aria-current="page">Alternative: comparison wheels</span></nav>
+    <header>
+      <p class="eyebrow">The Boyband Blueprint / Alternative design</p>
+      <h1>Do bigger bands match more?</h1>
+      <p class="intro">Compare band sizes, with bottoms and shirts side by side in every wheel.</p>
+      <p id="finding" class="finding" hidden></p>
+    </header>
+    <div class="key" aria-label="Track key">
+      <span><i class="key-chip bottoms" aria-hidden="true"></i><strong>Outer: bottoms</strong></span>
+      <span><i class="key-chip shirts" aria-hidden="true"></i><strong>Inner: shirts</strong></span>
+      <span><i class="key-chip remainder" aria-hidden="true"></i>Unfilled portion: non-matching pairs</span>
+    </div>
+    <p id="reading-guide" class="reading-guide">One divided slot = one band, on both tracks.
+      <strong>More of its slot filled = more matching pairs.</strong> Select a slot to see the evidence.</p>
+    <p id="load-status" role="status">Loading member records...</p>
+    <p id="announcement" class="visually-hidden" role="status" aria-live="polite"></p>
+
+    <div class="workspace">
+      <section aria-label="Band-size comparison wheels">
+        <div id="wheels" class="wheels"></div>
+        <p id="sample-caution" class="caution"></p>
+      </section>
+      <aside class="evidence" aria-labelledby="detail-title">
+        <h2 id="detail-title">Look inside a band</h2>
+        <label for="band-select">Select a band</label>
+        <select id="band-select" disabled><option value="">Choose a band...</option></select>
+        <p id="detail-empty">Choose any segment or use this selector to compare a band's bottoms and shirts.</p>
+        <div id="detail-content" hidden>
+          <p id="detail-size"></p>
+          <button id="clear-selection" type="button">Clear selection</button>
+          <div id="band-scores"></div>
+          <h3>Member evidence</h3>
+          <div class="table-scroll">
+            <table>
+              <caption class="visually-hidden">Recorded clothing-colour categories for each member</caption>
+              <thead><tr><th scope="col">Member</th><th scope="col">Bottoms</th><th scope="col">Shirts</th></tr></thead>
+              <tbody id="members"></tbody>
+            </table>
+          </div>
+          <details>
+            <summary>Most common categories</summary>
+            <p id="modes"></p>
+          </details>
+        </div>
+      </aside>
+    </div>
+
+    <details class="method">
+      <summary>What is being averaged, and how should I compare the wheels?</summary>
+      <p>A band's score is its matching known-colour member pairs divided by all possible known-colour pairs.
+        0% means all known categories differ; 100% means they all match. For example, two black and two navy-blue
+        records produce 2 matching pairs out of 6, or 33.3%.</p>
+      <p>Each centre value is the <strong>arithmetic mean of the available band scores</strong> in that size group.
+        Every band has equal weight. It is not a pooled percentage of all member pairs, a percentage of matching members,
+        or a percentage of completely matching bands.</p>
+      <p>Read the fraction filled <strong>within each band's own slot</strong>, not raw arc length across different wheels or tracks.
+        More bands means narrower slots; the outer track has a larger radius. The centre numbers provide exact group comparisons.
+        Band slots run alphabetically clockwise from the top, and the two garments always align.</p>
+      <p>Missing colours never match each other. Fewer than two known colours gives an unavailable score,
+        shown as a hatched slot and excluded from the average, not treated as zero.
+        A score based on incomplete colours is flagged. Black and navy blue are distinct categories;
+        two "patterned" records need not depict identical patterns.</p>
+      <p>This alternative prioritizes group comparisons and simultaneous garment comparison. The original plot
+        gives individual bands more prominent score positions. Neither layout establishes a causal band-size effect;
+        an aligned dot plot would support more accurate numerical reading than curved marks.</p>
+    </details>
+    <footer><a href="index.html">Compare with the unchanged original</a> &middot; <a href="boys.csv">Source data</a> &middot; <a href="readme.txt">Run instructions</a></footer>
+  </main>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+  <noscript><p>JavaScript is required to load the visualization.</p></noscript>
+  <script src="js/vendor/d3.v7.min.js"></script>
+  <script type="module">
+    import("./js/wheels.js").then(({ start }) => start()).catch(error => {
+      console.error("Comparison wheels failed to start:", error);
+      const status = document.querySelector("#load-status");
+      status.hidden = false;
+      status.className = "error";
+      status.textContent = `Unable to load comparison wheels: ${error.message}. Serve this folder over HTTP and check its files.`;
+      document.querySelector("#band-select").disabled = true;
+      document.body.dataset.appState = "error";
+    });
+  </script>
+</body>
+</html>

@@ -46,6 +46,8 @@ A first-pass mental model for designing any visualization (explored in depth in 
   - 3D: volumes (rarely used)
 - **Channels** – how marks are visually presented: **position, size, colour, shape**
 
+> The full channel list, the effectiveness ranking, and the fact that "colour" is really three channels (hue, saturation, luminance) are in [Session 6](session06-effective-communication.md).
+
 **Worked example** (blood pressure of hospital patients by day): starting from raw measurements, the demo built up a scatter-style chart step by step — first plotting patients as points, then encoding the *number of patients* as circle size, then filtering to only overnight patients, and finally combining **4 channels at once** (position × 2, size, colour) to show day, systolic/diastolic pressure, and patient count together.
 
 ---

@@ -263,6 +263,8 @@ const ageGroupColorScale = d3.scaleOrdinal()
 
 **Rule of thumb:** match the palette to the attribute type. Categorical → distinct hues. Ordinal/quantitative → a sequential ramp. Diverging data (around a meaningful midpoint) → a diverging ramp.
 
+> *Why* this works comes in [Session 6](session06-effective-communication.md). Hue is an **identity** channel with no perceptual order, while Viridis has monotonically increasing **luminance**, a magnitude channel. Twelve hues is also at the upper limit of the ~6–12 colours people can tell apart.
+
 ---
 
 ## 6. Streamgraph
