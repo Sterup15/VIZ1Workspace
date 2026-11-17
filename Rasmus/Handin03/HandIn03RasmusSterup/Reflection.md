@@ -4,7 +4,7 @@ Hand-in 3, *The Boyband Blueprint*. Rasmus Sterup.
 
 ## How to run
 
-Open the folder with a local web server, for example VS Code's *Live Server* or `python -m http.server`, then open `index.html`. Opening the file directly from disk does not work, because the browser blocks `d3.csv('boys.csv')` on `file://`. D3 v7 is loaded from `d3js.org`, so an internet connection is needed.
+Open the index.html file with something like VS Code's Live Server.
 
 Files:
 - `index.html`: page structure and reading guide
@@ -84,3 +84,4 @@ The ring is a colour wheel and works as the categorical axis of the chart: angle
 - Show two attributes side by side instead of switching, to compare them directly.
 - Include D3 in the project folder, so the page also works offline.
 - The stretched wheel makes angle no longer proportional to hue, which can be confusing. Test with readers whether the extra space is worth that.
+- Add a measure of each band's success, for example chart positions, record sales or streams, from another source. That would make it possible to test hypotheses about whether a band's colours or uniformity correlate with how successful it was.
