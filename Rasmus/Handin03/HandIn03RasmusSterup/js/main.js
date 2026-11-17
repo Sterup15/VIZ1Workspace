@@ -44,7 +44,7 @@ function createViz(data) {
   let model = {
     attribute: 'overall',
     // Which wheels are shown. At least one is always on.
-    wheels: { colour: true, grey: false },
+    wheels: { colour: true, grey: true },
     // The part of the wheel that is shown, as fractions (0-1) of the way round
     range: [0, 1],
     selectedBand: null
@@ -57,11 +57,9 @@ function createViz(data) {
     const svg = d3.select('#viz').append('svg')
       .attr('viewBox', `0 0 ${width} ${height}`)
       .attr('role', 'img')
-      .attr('aria-labelledby', 'viz-title viz-desc');
-
-    svg.append('title').attr('id', 'viz-title').text('Boyband colour uniformity');
-    svg.append('desc').attr('id', 'viz-desc')
-      .text('A colour wheel with one dot per band, placed at its signature colour. ' +
+      // aria-label instead of an SVG <title>, so the browser doesn't show it as a tooltip on hover
+      .attr('aria-label', 'Boyband colour uniformity. ' +
+            'A colour wheel with one dot per band, placed at its signature colour. ' +
             'The further a dot is from the wheel, the more alike the band members are.');
 
     const chart = svg.append('g').attr('transform', `translate(${center}, ${center})`);
