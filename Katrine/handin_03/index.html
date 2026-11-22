@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Boybands and colors</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="css/grid.css">
+    <link rel="stylesheet" type="text/css" href="css/custom.css">
+</head>
+
+<body onload="main()">
+
+    <div class="container">
+        <h1>The Boyband Zodiac</h1>
+        <div class="subtitle">Is there any color trend across the twelve zodiac signs?</div>
+        <div class="intro">
+            <p>Each wedge is a zodiac sign, read off the members' birth dates &mdash; a wider wedge means more
+                boyband members were born under that sign. The five rings inside a wedge show that sign's most
+                common hair, eye, skin, shirt and pants color. Hover a ring for the exact split behind its color, or
+                click a wedge to see its actual members.</p>
+        </div>
+
+        <div class="row chart-section">
+            <div class="col-8">
+                <div id="viz"></div>
+            </div>
+
+            <div class="col-4 sidebar">
+                <div class="card ring-legend">
+                    <h3>How to read the rings</h3>
+                    <ul class="ring-key">
+                        <li><span class="ring-index">1</span>Hair color</li>
+                        <li><span class="ring-index">2</span>Eye color</li>
+                        <li><span class="ring-index">3</span>Skin tone</li>
+                        <li><span class="ring-index">4</span>Shirt color</li>
+                        <li><span class="ring-index">5</span>Pants color</li>
+                    </ul>
+                    <p class="note">Each ring's color is the real value, not a mapped one &mdash; there's no legend
+                        to decode. Hover a ring to see the exact split behind it, or click a wedge to open its
+                        member list.</p>
+                </div>
+
+                <div class="card member-panel">
+                    <h3 id="memberPanelTitle">Click a wedge to see its members</h3>
+                    <ul id="memberList"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="sources">
+            <div class="sources-label">Data</div>
+            <ul>
+                <li>boys.csv &mdash; boyband dataset provided from VIZ1</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="tooltip"></div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
