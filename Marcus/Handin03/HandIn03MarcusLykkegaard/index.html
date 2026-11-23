@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Boyband Blueprint - Matching Outfits?</title>
+  <meta name="description" content="Explore recorded clothing colours and matching-pair scores with a radial chart and draggable colour-gradient filter.">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+  <a class="skip-link" href="#controls">Skip to controls</a>
+  <main class="page">
+    <header class="intro">
+      <p class="eyebrow">The Boyband Blueprint / VIZ1</p>
+      <h1>Matching outfits?</h1>
+      <p class="question">Which clothing colours do bands share, and how closely do their outfits match?</p>
+    </header>
+
+    <p id="chart-status" class="status" role="status">Loading member records...</p>
+    <p id="announcement" class="visually-hidden" role="status" aria-live="polite"></p>
+
+    <div class="workspace">
+      <section class="colour-chart" aria-labelledby="colour-chart-title">
+        <h2 id="colour-chart-title">Filter bands</h2>
+        <form id="controls" class="controls" aria-label="Explore the bands">
+          <fieldset id="control-fields" disabled>
+            <legend class="visually-hidden">Choose clothing and inspect a band</legend>
+            <div class="control">
+              <label for="garment">Choose clothing</label>
+              <select id="garment" name="garment">
+                <option value="bottom_color">Bottoms</option>
+                <option value="shirt_color">Shirts</option>
+              </select>
+            </div>
+            <div class="control band-control">
+              <label for="band-select">Look inside a band</label>
+              <select id="band-select" name="band"><option value="">Choose a band...</option></select>
+            </div>
+          </fieldset>
+        </form>
+        <p class="small-note" id="colour-chart-guide">Drag to filter by most common colour. Mixed means tied colours.</p>
+        <button id="all-colours" type="button" disabled>All colours</button>
+        <p id="filter-status" class="filter-status" role="status"></p>
+        <label for="colour-slider">Most common colour</label>
+        <div class="colour-ramp">
+          <div id="colour-gradient" class="colour-gradient" aria-hidden="true"></div>
+          <input id="colour-slider" type="range" min="0" max="1" step="0.0001" value="0" aria-orientation="vertical" aria-describedby="colour-chart-guide filter-status" disabled>
+          <div class="ramp-guide" aria-hidden="true"><span id="ramp-start"></span><span>Drag to<br>explore</span><span id="ramp-end"></span></div>
+        </div>
+      </section>
+
+      <section class="chart-section" aria-label="Clothing colours and matching-pair scores">
+        <div id="viz" aria-describedby="reading-guide"></div>
+        <p id="unavailable" class="coverage-note" hidden></p>
+        <p id="reading-guide" class="reading-guide"><strong>Further out = more matching pairs.</strong><br>
+          One pin per band. Select a pin for its colours and percentages.</p>
+      </section>
+
+      <aside class="info-panel" aria-label="Band information and legend">
+        <h2>Band legend</h2>
+        <div id="detail-empty">
+          <p>Select a band in the circle or the dropdown.</p>
+          <p class="small-note">Pins follow the most common clothing colour. Striped mixed pins have tied colours.</p>
+          <p class="small-note">The inner guide is 0%, the middle 50%, and the outer guide 100% matching pairs.</p>
+        </div>
+      <section id="detail-panel" class="detail-panel" aria-labelledby="detail-title" hidden>
+        <div class="detail-heading">
+          <div>
+            <h2 id="detail-title">Look inside a band</h2>
+            <p id="detail-subtitle" class="detail-subtitle"></p>
+          </div>
+          <button id="clear-selection" type="button" aria-label="Clear selection">Clear</button>
+        </div>
+        <div class="detail-grid">
+          <div>
+            <p class="score-label">Matching pairs</p>
+            <p id="detail-score" class="detail-score"></p>
+            <p id="detail-pairs"></p>
+            <p id="detail-coverage" class="coverage-note"></p>
+            <div class="category-summary">
+              <h3>Most common recorded colour</h3>
+              <p id="detail-mode"></p>
+              <h3>Clothing colours</h3>
+              <p class="small-note">Share of members with a known colour.</p>
+              <ul id="colour-counts" class="colour-counts"></ul>
+            </div>
+          </div>
+          <details id="member-records">
+            <summary>Member records</summary>
+            <ul id="member-list" class="member-list"></ul>
+          </details>
+        </div>
+      </section>
+      </aside>
+
+    </div>
+
+    <details class="method" id="method">
+      <summary>How to read the chart</summary>
+      <div class="method-columns">
+        <div>
+          <h3>Matching pairs</h3>
+          <p class="formula">Matching score = matching pairs / all known-member pairs</p>
+          <p><strong>0%:</strong> all known colours differ. <strong>100%:</strong> all match.
+            Shai's two black and two navy-blue bottoms give 2 matching pairs out of 6, or 33.3%.</p>
+          <p>Missing colours are excluded. Fewer than two known colours means unavailable, not zero.</p>
+        </div>
+        <div>
+          <h3>Colours and scale</h3>
+          <p>Each band has one pin in its most-common-colour sector; ties go in the striped mixed sector.
+            Arc width counts bands. The slider filters these same groups and follows the ring clockwise.
+            Blended shades are not measured shades. Black and navy blue stay distinct;
+            matching &quot;patterned&quot; categories need not mean identical patterns.</p>
+          <p>Read dots against the labelled score circles, not the full spoke length. Filtering preserves positions;
+            changing clothing rebuilds the sectors and clears incompatible filters or selections.</p>
+          <p>Hue organises categories; it does not make the data cyclic. A straight dot plot would support more
+            precise numerical comparisons. Recorded outfits do not establish styling intentions or causation.</p>
+        </div>
+      </div>
+    </details>
+    <footer>
+      <p>Source: the course-provided <a href="boys.csv">boyband dataset</a>.
+        234 member records, not necessarily 234 distinct people.</p>
+    </footer>
+  </main>
+  <div id="tooltip" class="tooltip" role="tooltip" hidden>
+    <strong id="tooltip-title"></strong>
+    <p id="tooltip-summary"></p>
+  </div>
+  <noscript><p class="noscript">JavaScript is required to load the data and use this visualization.</p></noscript>
+  <script src="js/vendor/d3.v7.min.js"></script>
+  <script type="module">
+    import("./js/main.js").then(({ start }) => start()).catch(error => {
+      console.error("Boyband Blueprint failed to start:", error);
+      document.querySelector("#chart-status").textContent = `Unable to load the visualization: ${error.message}. Serve this folder over HTTP and check that its files are present.`;
+      document.querySelector("#chart-status").classList.add("error");
+      document.querySelector("#control-fields").disabled = true;
+      document.querySelector("#all-colours").disabled = true;
+      document.querySelector("#colour-slider").disabled = true;
+      document.body.dataset.appState = "error";
+    });
+  </script>
+</body>
+</html>
